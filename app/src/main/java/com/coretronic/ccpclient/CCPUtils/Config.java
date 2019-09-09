@@ -7,6 +7,6 @@ public class Config {
     public static String apkDownloadSavePath = "/download/";
     public static String ccpserviceStartAction = "coretronic.intent.action.iot.service.START_BY_SHADOW";
     public static String ccpserviceApkDownloadPath = "https://ftp.coretronic.com/dl/coretronicnote/ccpservice/ccpservice.apk";
-    public static Long ccpserviceApkDownloadRetryMillisecond = 600 * 1000L;
+    public static Long ccpserviceApkDownloadRetryMillisecond = 6 * 1000L;
     public static boolean isBindService = false;
 }

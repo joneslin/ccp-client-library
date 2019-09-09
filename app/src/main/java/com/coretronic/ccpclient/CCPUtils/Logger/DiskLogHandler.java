@@ -8,6 +8,7 @@ import android.os.Message;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 public class DiskLogHandler extends Handler {
     private final String folder;
@@ -74,25 +75,27 @@ public class DiskLogHandler extends Handler {
             folder.mkdirs();
         }
 
-        int newFileCount = 0;
+        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMdd");
+        String date = sDateFormat.format(new java.util.Date());
+
         File newFile;
-        File existingFile = null;
+        newFile = new File(folder, String.format("%s-%s.csv", fileName, date));
 
-        newFile = new File(folder, String.format("%s_%s.csv", fileName, newFileCount));
-        while (newFile.exists()) {
-            existingFile = newFile;
-            newFileCount++;
-            newFile = new File(folder, String.format("%s_%s.csv", fileName, newFileCount));
-        }
+//        int newFileCount = 0;
+//        File existingFile = null;
 
-        if (existingFile != null) {
-            if (existingFile.length() >= maxFileSize) {
-                return newFile;
-            }
-            return existingFile;
-        }
+//        while (newFile.exists()) {
+//            existingFile = newFile;
+//            newFileCount++;
+//            newFile = new File(folder, String.format("%s_%s.csv", fileName, date));
+//        }
 
+//        if (existingFile != null) {
+//            if (existingFile.length() >= maxFileSize) {
+//                return newFile;
+//            }
+//            return existingFile;
+//        }
         return newFile;
-
     }
 }

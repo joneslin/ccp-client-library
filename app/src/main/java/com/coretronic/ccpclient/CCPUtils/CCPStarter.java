@@ -39,6 +39,10 @@ public class CCPStarter {
         this.ccpAidlInterface = ccpAidlInterface;
     }
 
+    public CCPStarter(Context context) {
+        this.context = context;
+    }
+
     public void start(){
         serviceConnection = new ServiceConnection() {
             @Override
@@ -55,7 +59,7 @@ public class CCPStarter {
         };
 
         // CCP Detector. 偵測ccp若存在則啟動，cpp不存在則下載並啟動，也一併啟動bind service。
-        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection);
+        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, false);
         ccpDetector.startCCPService();
 
         // example: Boardcast method.
@@ -81,11 +85,11 @@ public class CCPStarter {
         // 客製化路徑、檔名、檔案大小
         FormatStrategy formatStrategy = CsvFormatStrategy.newBuilder()
                 .tag(context.getPackageName())
-                .logStrategy(new DiskLogStrategy(new DiskLogHandler(Environment.getExternalStorageDirectory().getAbsolutePath()+"/logger/", "aaa", 1000*1000)))
+                .logStrategy(new DiskLogStrategy(new DiskLogHandler(Environment.getExternalStorageDirectory().getAbsolutePath()+"/logger/", "log", 1000*1000)))
                 .build();
 
         Logger.addLogAdapter(new DiskLogAdapter(formatStrategy));
-        for (int i=0; i<=20; i++) {
+        for (int i=0; i<=20000; i++) {
             User user = new User();
             user.setAccount("這是帳號");
             user.setMobile("這是電話");

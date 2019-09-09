@@ -1,7 +1,6 @@
 package com.coretronic.ccpclient.CCPUtils.Download;
 
 import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -20,11 +19,20 @@ public class SilentInstall {
         BufferedReader successStream = null;
         Process process = null;
         try {
-            // 申请 su 权限
+            // 申请 su 權限
             process = Runtime.getRuntime().exec("su");
             dataOutputStream = new DataOutputStream(process.getOutputStream());
-            // 执行 pm install 命令
+
+            // 標準安裝：pm install 命令
             String command = "pm install -r " + apkPath + "\n";
+
+            // 安裝至system/priv-app，成為系統app
+//            dataOutputStream.writeBytes("mount -o rw,remount -t auto /system"+ "\n");
+//            dataOutputStream.flush();
+//            dataOutputStream.writeBytes("chmod 777 /system/priv-app" + "\n");
+//            dataOutputStream.flush();
+//            String command = "mv " + apkPath + " /system/priv-app" + "\n";
+
             dataOutputStream.write(command.getBytes(Charset.forName("UTF-8")));
             dataOutputStream.writeBytes("exit\n");
             dataOutputStream.flush();
@@ -38,12 +46,12 @@ public class SilentInstall {
             Log.d(TAG, "silent install error message: " + errorMsg);
             StringBuilder successMsg = new StringBuilder();
             successStream = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            // 读取命令执行结果
+            // 讀取命令執行結果
             while ((line = successStream.readLine()) != null) {
                 successMsg.append(line);
             }
             Log.d(TAG, "silent install success message: " + successMsg);
-            // 如果执行结果中包含 Failure 字样就认为是操作失败，否则就认为安装成功
+            // 如果執行結果中包含 Failure 字樣就認為是操作失敗，否則就認為安裝成功
             if (!(errorMsg.toString().contains("Failure") || successMsg.toString().contains("Failure"))) {
                 result = true;
             }

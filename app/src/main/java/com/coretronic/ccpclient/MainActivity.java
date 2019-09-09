@@ -9,6 +9,18 @@ import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpservice.ICCPAidlCallback;
 import com.coretronic.ccpservice.ICCPAidlInterface;
 
+//public class MainActivity extends AppCompatActivity{
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//
+//        //### 0.啟動CCP Service所有相關動作
+//        CCPStarter ccpStarter = new CCPStarter(this);
+//        ccpStarter.start();
+//    }
+//}
+
 public class MainActivity extends AppCompatActivity implements CCPAidlInterface {
     private CCPStarter ccpStarter = null;
     @Override
