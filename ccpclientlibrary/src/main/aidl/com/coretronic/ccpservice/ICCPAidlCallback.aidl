@@ -5,6 +5,8 @@ package com.coretronic.ccpservice;
 // Created by Jones
 oneway interface ICCPAidlCallback {
 
-    void valueChanged(int value);
+    void serviceInt(int value);
+
+    void serviceString(String value);
 
 }

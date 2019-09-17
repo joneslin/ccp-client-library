@@ -1,12 +1,12 @@
-package com.coretronic.ccpclientlibrary.CCPUtils.Download;
+package com.coretronic.ccpclient.CCPUtils.Download;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.StatFs;
 import android.util.Log;
 
-import com.coretronic.ccpclientlibrary.CCPUtils.Config;
-import com.coretronic.ccpclientlibrary.CCPUtils.Router.RouterAzure;
+import com.coretronic.ccpclient.CCPUtils.Config;
+import com.coretronic.ccpclient.CCPUtils.Router.RouterAzure;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

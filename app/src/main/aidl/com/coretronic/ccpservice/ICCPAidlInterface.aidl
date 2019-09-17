@@ -14,4 +14,6 @@ interface ICCPAidlInterface {
     String sendString(String data);
 
     String sendInt(int data);
+
+    String sendControlPackageNameArray(inout List<String> data);
 }

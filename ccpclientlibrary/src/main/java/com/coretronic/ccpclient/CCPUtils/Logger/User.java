@@ -1,4 +1,4 @@
-package com.coretronic.ccpclientlibrary.CCPUtils.Logger;
+package com.coretronic.ccpclient.CCPUtils.Logger;
 
 public class User {
     String Account = "";

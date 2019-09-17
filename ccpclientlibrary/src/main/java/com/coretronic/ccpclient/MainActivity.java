@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
 
 //TODO 0.啟動CCP Service所有相關動作
         ccpStarter = new CCPStarter(this, this);

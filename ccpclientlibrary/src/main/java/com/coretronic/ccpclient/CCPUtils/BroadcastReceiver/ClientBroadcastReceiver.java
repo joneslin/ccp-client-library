@@ -1,4 +1,4 @@
-package com.coretronic.ccpclientlibrary.CCPUtils.BroadcastReceiver;
+package com.coretronic.ccpclient.CCPUtils.BroadcastReceiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

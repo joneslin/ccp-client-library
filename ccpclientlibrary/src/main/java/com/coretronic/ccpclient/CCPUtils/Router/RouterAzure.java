@@ -1,13 +1,11 @@
-package com.coretronic.ccpclientlibrary.CCPUtils.Router;
+package com.coretronic.ccpclient.CCPUtils.Router;
 
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
 import okhttp3.OkHttpClient;
 
 /**

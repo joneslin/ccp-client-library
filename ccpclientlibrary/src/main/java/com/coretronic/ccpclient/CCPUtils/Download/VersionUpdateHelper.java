@@ -1,4 +1,4 @@
-package com.coretronic.ccpclientlibrary.CCPUtils.Download;
+package com.coretronic.ccpclient.CCPUtils.Download;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,9 +7,10 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.coretronic.ccpclientlibrary.CCPUtils.Config;
+import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpservice.ICCPAidlInterface;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -20,21 +21,23 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     private String md5 = "";
     private String saveFileName = "";
     private String fileUrl = "";
-    private boolean isShadowService = false;
+    private boolean isCCPService = false;
+    private boolean bindCCPService = false;
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
 
-    public VersionUpdateHelper(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection) {
+    public VersionUpdateHelper(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService) {
         this.context = context;
         this.iccpAidlInterface = iccpAidlInterface;
         this.serviceConnection = serviceConnection;
+        this.bindCCPService = bindCCPService;
     }
 
-    public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isShadowService) {
+    public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isCCPService) {
         this.md5 = md5;
         this.saveFileName = saveFileName;
         this.fileUrl = fileUrl;
-        this.isShadowService = isShadowService;
+        this.isCCPService = isCCPService;
         task = new APKDownloadTask(context, this, this, this, this.saveFileName, this.fileUrl);
         task.execute();
     }
@@ -55,10 +58,34 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
             Log.d(TAG, "chmod path: " + filePath);
             Runtime.getRuntime().exec(new String[]{"chmod", "777", filePath});
             Runtime.getRuntime().exec(new String[]{"chmod", "777", folderPath});
+
+
+            Runtime.getRuntime().exec(new String[]{"su", "-c", "mount -o remount rw /system"} );
+            Runtime.getRuntime().exec(new String[]{"chmod", "777", "/system/priv-app"});
+//            try {
+//                Process process = Runtime.getRuntime().exec("su");
+//                DataOutputStream outputStream = new DataOutputStream(process.getOutputStream());
+//                outputStream.writeBytes("mount -o rw,remount -t auto /system"+ "\n");
+//                outputStream.flush();
+//                outputStream.writeBytes("chmod 777 /system/priv-app" + "\n");
+//                outputStream.flush();
+//                outputStream.close();
+//                process.destroy();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+//            Process child = Runtime.getRuntime().exec(new String[] { "su"});
+//            DataOutputStream stdin = new DataOutputStream(child.getOutputStream());
+//            stdin.writeBytes("mount -o rw,remount -t auto /system");
+//            stdin.writeBytes("chmod 777 /system/priv-app");
+//            Runtime.getRuntime().exec(new String[]{"su"});
+//            Runtime.getRuntime().exec(new String[]{"mount -o rw,remount -t auto /system"});
+//            Runtime.getRuntime().exec(new String[]{"chmod", "777", "/system/priv-app"});
         } catch (IOException e) {}
 
 
-        if (isShadowService) {
+        if (isCCPService) {
             // Silent Install
             if (SilentInstall.startInstall(filePath)) {
                 Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
@@ -68,15 +95,17 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                 context.sendBroadcast(intent);
 
-                // Bind AIDL.
-                if (iccpAidlInterface == null) {
-                    Intent it = new Intent();
-                    //service action.
-                    it.setAction("coretronic.intent.action.aidl");
-                    //service package name.
-                    it.setPackage("com.coretronic.ccpservice");
-                    context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
-                    Config.isBindService = true;
+                if (bindCCPService) {
+                    // Bind AIDL.
+                    if (iccpAidlInterface == null) {
+                        Intent it = new Intent();
+                        //service action.
+                        it.setAction("coretronic.intent.action.aidl");
+                        //service package name.
+                        it.setPackage("com.coretronic.ccpservice");
+                        context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+                        Config.isBindService = true;
+                    }
                 }
             } else {
                 Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
@@ -116,10 +145,10 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     @Override
     public void cancell() {
         Log.d(TAG, "cancell: cancell");
-        Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
 
-        //shadow service need to retry.
-        if (isShadowService){
+        //CCP service need to retry.
+        if (isCCPService){
             retryToDownload();
         }
 
