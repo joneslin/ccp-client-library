@@ -9,4 +9,6 @@ oneway interface ICCPAidlCallback {
 
     void serviceString(String value);
 
+    void ccpServiceReady(String messageCode);
+
 }

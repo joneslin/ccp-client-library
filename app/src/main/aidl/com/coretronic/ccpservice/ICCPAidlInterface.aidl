@@ -16,4 +16,6 @@ interface ICCPAidlInterface {
     String sendInt(int data);
 
     String sendControlPackageNameArray(inout List<String> data);
+
+    void sendRegisterInfo(String deviceId, String tenantId);
 }

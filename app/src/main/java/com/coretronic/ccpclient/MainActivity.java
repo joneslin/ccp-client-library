@@ -13,18 +13,6 @@ import com.coretronic.ccpservice.ICCPAidlInterface;
 import java.util.ArrayList;
 import java.util.List;
 
-//public class MainActivity extends AppCompatActivity{
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//
-//        //### 0.啟動CCP Service所有相關動作
-//        CCPStarter ccpStarter = new CCPStarter(this);
-//        ccpStarter.start();
-//    }
-//}
-
 public class MainActivity extends AppCompatActivity implements CCPAidlInterface {
     private CCPStarter ccpStarter = null;
     @Override
@@ -41,47 +29,54 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
         loggerExample.saveLogToFile(this);
     }
 
-//--------------------------------------------------------------------------------------------------
-//若需要APP與CCP Service雙向溝通，才需加入以下程式與implements CCPAidlInterface。
-//TODO 1.ccp agent service 所需參數
+    //TODO 1.ccp agent service 所需參數
     private ICCPAidlInterface iccpAidlInterface = null;
     private ICCPAidlCallback iccpAidlCallback = null;
 
-//TODO 2.等待您的APP與ccp agent service建立溝通管道
+    //TODO 2.等待您的APP與ccp agent service建立溝通管道
     @Override
     public void alreadyConnected() {
         this.iccpAidlInterface = ccpStarter.getIccpAidlInterface();
 
-//TODO 3.從ccp agent service接收資料
+        //TODO 3.從ccp agent service接收資料
         iccpAidlCallback = new ICCPAidlCallback.Stub() {
             @Override
             public void serviceInt(int value) throws RemoteException {
-                Log.d("AIDL Resutl", "DataFromService: " + value);
+                Log.d("AIDL Callback", "CCP Service Status Code: " + value);
             }
 
             @Override
             public void serviceString(String value) throws RemoteException {
-                Log.d("AIDL Resutl", "DataFromService: " + value);
+                Log.d("AIDL Callback", "Get String From CCP Service: " + value);
+            }
+
+            @Override
+            public void ccpServiceReady(String messageCode) throws RemoteException {
+                Log.d("AIDL Callback", "CCP Service Get Ready, please send DeviceID and TenantID") ;
+
+                // TODO 4. 重要：傳註冊資訊，需要傳送兩個值，分別為DeviceID(由各單位自行定義) 與 TenantID(範例中為optoma TenantID)。
+                iccpAidlInterface.sendRegisterInfo("Optoma-"+android.os.Build.SERIAL, "5b2e092f-0751-4480-8154-9dece5398ddf");
             }
         };
 
+        // TODO 5. 註冊AIDL CallBack.
         try {
             iccpAidlInterface.registerCallback(iccpAidlCallback);
         } catch (RemoteException e) { }
 
 
-//TODO 4.送資料到ccp agent service
+        //TODO 6.送資料到ccp agent service example.
         try {
-            // 傳一般string至ccp agent Service.
+            // 傳String至ccp agent Service.
             String sendStringToService = iccpAidlInterface.sendString("test123");
 
-            // 傳一般integer至ccp agent Service.
+            // 傳Integer至ccp agent Service.
             String sendIntToService = iccpAidlInterface.sendInt(1000);
 
-// TODO 5.重要：將要被控管的android package name，透過beControlledPackageName List回傳給ccp agent service.
+
+            // TODO 7.重要：將要被CCP平台控管的android package name，透過beControlledPackageName List回傳給CCP agent service.
             List<String> beControlledPackageName = new ArrayList<>();
             beControlledPackageName.add("com.coretronic.ccpservice");
-            beControlledPackageName.add("com.coretronic.fusion");
             String sendControlPackageNameStatus = iccpAidlInterface.sendControlPackageNameArray(beControlledPackageName);
 
         } catch (RemoteException e) {
@@ -93,12 +88,13 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
     protected void onDestroy() {
         super.onDestroy();
         Log.d("Client", "onDestroy: " + Config.isBindService);
-//TODO 6.解除CCP Service綁定
+
+        //TODO 8.解除CCP Service綁定
         if (Config.isBindService) {
             unbindService(ccpStarter.getServiceConnection());
         }
 
-//TODO 7.解除CCP AIDL Callback.
+        //TODO 9.解除CCP AIDL Callback.
         try {
             iccpAidlInterface.unregisterCallback(iccpAidlCallback);
         } catch (RemoteException e) {
