@@ -3,16 +3,23 @@ package com.coretronic.ccpclient.CCPUtils.Download;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.coretronic.ccpclient.CCPUtils.Config;
+import com.coretronic.ccpclient.MainActivity;
+import com.coretronic.ccpclient.R;
 import com.coretronic.ccpservice.ICCPAidlInterface;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import retrofit2.http.Url;
 
 public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKDownloadTask.OnCancelled, APKDownloadTask.OnProgress {
     private String TAG = VersionUpdateHelper.class.getSimpleName();
@@ -86,8 +93,19 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 
 
         if (isCCPService) {
+
+            boolean isSuccess  =false;
+            try {
+                Uri fileUri = Uri.fromFile(new File(filePath));
+                InputStream is = context.getContentResolver().openInputStream(fileUri);
+                isSuccess = SilentInstall.startInstall(context, is, filePath);
+            } catch (IOException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "AAAA" + e.getMessage());
+            }
+
             // Silent Install
-            if (SilentInstall.startInstall(filePath)) {
+            if (isSuccess) {
                 Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
 
                 // Start CCP Service.
@@ -110,7 +128,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
             } else {
                 Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
                 //shadow service need to retry.
-                retryToDownload();
+//                retryToDownload();
             }
         }
 //        String[] children = rootFile.list();
