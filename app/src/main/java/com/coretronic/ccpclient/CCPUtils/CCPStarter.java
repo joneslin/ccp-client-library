@@ -16,6 +16,7 @@ public class CCPStarter {
     Context context;
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
+    String ccpServiceApkName = "";
     CCPAidlInterface ccpAidlInterface;
     public ICCPAidlInterface getIccpAidlInterface() {
         return iccpAidlInterface;
@@ -24,9 +25,10 @@ public class CCPStarter {
         return serviceConnection;
     }
 
-    public CCPStarter(Context context, CCPAidlInterface ccpAidlInterface) {
+    public CCPStarter(Context context, CCPAidlInterface ccpAidlInterface, String ccpServiceApkName) {
         this.context = context;
         this.ccpAidlInterface = ccpAidlInterface;
+        this.ccpServiceApkName = ccpServiceApkName;
     }
 
     public CCPStarter(Context context) {
@@ -49,7 +51,7 @@ public class CCPStarter {
         };
 
         // CCP Detector. 偵測ccp若存在則啟動，cpp不存在則下載並啟動，也一併啟動bind service。
-        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true);
+        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true, ccpServiceApkName);
         ccpDetector.startCCPService();
     }
 }

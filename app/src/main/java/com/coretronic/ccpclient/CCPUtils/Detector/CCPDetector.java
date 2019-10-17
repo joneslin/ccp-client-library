@@ -21,12 +21,14 @@ public class CCPDetector {
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
     boolean bindCCPService = false;
+    String ccpServiceApkName = "";
 
-    public CCPDetector(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService) {
+    public CCPDetector(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService, String ccpServiceApkName) {
         this.context = context;
         this.iccpAidlInterface = iccpAidlInterface;
         this.serviceConnection = serviceConnection;
         this.bindCCPService = bindCCPService;
+        this.ccpServiceApkName = ccpServiceApkName;
     }
 
     public void startCCPService(){
@@ -52,14 +54,12 @@ public class CCPDetector {
                     Config.isBindService = true;
                 }
             }
-
         } else {
             //download apk and start.
-            Log.d(TAG, "*****need to Download CCP APK");
+            Log.d(TAG, "*****need to Download CCP APK" + ccpServiceApkName);
             VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context, iccpAidlInterface, serviceConnection, bindCCPService);
-            versionUpdateHelper.downloadManager("ccpservice.apk", Config.ccpserviceApkDownloadPath, "", true);
+            versionUpdateHelper.downloadManager(ccpServiceApkName, Config.ccpserviceApkDownloadPath, "", true);
         }
-
     }
 
     public boolean isPackageExist(Context context, String targetPackage){

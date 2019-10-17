@@ -2,12 +2,10 @@ package com.coretronic.ccpclient.CCPUtils.Download;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
-
-import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpclient.CCPUtils.Router.RouterAzure;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,7 +35,7 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
         this.fileName = fileName;
         this.fileUrl = fileUrl;
         this.context = context;
-        localFilePath = context.getCacheDir().getPath() + Config.apkDownloadSavePath;
+//        localFilePath = context.getCacheDir().getPath() + Config.apkDownloadSavePath;
     }
 
     @Override
@@ -73,10 +71,12 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
             Log.d(TAG, "Clear All Media Data");
         }
 
-        File folder = new File(localFilePath);
-        if (folder.isDirectory()) {
-        } else {
+        File folder = new File(Environment.getExternalStorageDirectory(), "Download");
+        Log.d(TAG, "downloadFolder:" + folder.getAbsolutePath());
+
+        if (!folder.exists()) {
             folder.mkdirs();
+            Log.d(TAG, "folder mkdirs:" + folder.getAbsolutePath());
         }
 
         OkHttpClient httpClient = RouterAzure.getUnsafeOkHttpClient();
@@ -92,7 +92,7 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                     long downloaded = 0;
                     long target = response.body().contentLength();
 
-                    File compressedFile = new File(localFilePath, fileName);
+                    File compressedFile = new File(folder, fileName);
                     OutputStream outputStream = new FileOutputStream(compressedFile);
                     publishProgress(0L, target);
                     while (true) {

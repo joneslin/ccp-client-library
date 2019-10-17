@@ -1,2 +1,3 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.coretronic.ccpclientlibrary" />
+    package="com.coretronic.ccpclientlibrary"
+    android:sharedUserId="android.uid.system"/>

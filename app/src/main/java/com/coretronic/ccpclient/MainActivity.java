@@ -3,7 +3,6 @@ import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-
 import com.coretronic.ccpclient.CCPUtils.Example.LoggerExample;
 import com.coretronic.ccpclient.CCPUtils.Interface.CCPAidlInterface;
 import com.coretronic.ccpclient.CCPUtils.CCPStarter;
@@ -15,13 +14,16 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements CCPAidlInterface {
     private CCPStarter ccpStarter = null;
+    private String ccpServiceApkName = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//TODO 0.啟動CCP Service所有相關動作
-        ccpStarter = new CCPStarter(this, this);
+        //TODO 0.啟動CCP Service所有相關動作
+        ccpServiceApkName = "ccpservice_rk3399_sign_v1.apk";
+        ccpStarter = new CCPStarter(this, this, ccpServiceApkName);
         ccpStarter.start();
 
         // write log example.
@@ -95,10 +97,12 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
         }
 
         //TODO 9.解除CCP AIDL Callback.
-        try {
-            iccpAidlInterface.unregisterCallback(iccpAidlCallback);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        if (iccpAidlInterface!=null) {
+            try {
+                iccpAidlInterface.unregisterCallback(iccpAidlCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
 
         iccpAidlInterface = null;
