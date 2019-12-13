@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
         setContentView(R.layout.activity_main);
 
         //TODO 0.啟動CCP Service所有相關動作
-        ccpServiceApkName = "ccpservice_rk3399_sign_v1.apk";
+        ccpServiceApkName = "ccpservice_optoma_nosign_1.apk";
         ccpStarter = new CCPStarter(this, this, ccpServiceApkName);
         ccpStarter.start();
 
@@ -44,20 +44,24 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
         iccpAidlCallback = new ICCPAidlCallback.Stub() {
             @Override
             public void serviceInt(int value) throws RemoteException {
-                Log.d("AIDL Callback", "CCP Service Status Code: " + value);
+                Log.d("AIDL Callback", "CCP Service - Connection Status Code: " + value);
             }
 
             @Override
             public void serviceString(String value) throws RemoteException {
-                Log.d("AIDL Callback", "Get String From CCP Service: " + value);
+                Log.d("AIDL Callback", "CCP Service - Get String: " + value);
             }
 
             @Override
             public void ccpServiceReady(String messageCode) throws RemoteException {
-                Log.d("AIDL Callback", "CCP Service Get Ready, please send DeviceID and TenantID") ;
+                Log.d("AIDL Callback", "CCP Service - Get Ready") ;
+                // TODO 4. 重要：傳驗証資訊，需要傳送四個值，分別為DeviceID(由各單位自行定義) 與 guid、secretKey、connectionString(這三個支為註冊api成功時取得)。
+                iccpAidlInterface.sendValidationInfo("Optoma-8D2CEEIABU-3", "3cda3db8-8424-45e4-8a59-782bfcc6a74b", "jlXz/15BIIek2jLfcBRyK1Xbeqwy/xYPpvhdKqcwBxQ=", "HostName=CCP-IoTHub-Dev.azure-devices.net;DeviceId=Optoma-8D2CEEIABU-5;SharedAccessKey=jlXz/15BIIek2jLfcBRyK1Xbeqwy/xYPpvhdKqcwBxQ=" );
+            }
 
-                // TODO 4. 重要：傳註冊資訊，需要傳送兩個值，分別為DeviceID(由各單位自行定義) 與 TenantID(範例中為optoma TenantID)。
-                iccpAidlInterface.sendRegisterInfo("Optoma-"+android.os.Build.SERIAL, "5b2e092f-0751-4480-8154-9dece5398ddf");
+            @Override
+            public void ccpServiceValidationResult(int statusCode) throws RemoteException {
+                Log.d("AIDL Callback", "CCP Service - Validation Status Code: " + statusCode);
             }
         };
 

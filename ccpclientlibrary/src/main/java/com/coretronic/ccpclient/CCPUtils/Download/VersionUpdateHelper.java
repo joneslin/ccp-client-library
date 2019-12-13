@@ -40,6 +40,14 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         context.registerReceiver(broadcastReceiver, filter);
     }
 
+    public VersionUpdateHelper(Context context) {
+        this.context = context;
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.PACKAGE_ADDED");
+        filter.addDataScheme("package");
+        context.registerReceiver(broadcastReceiver, filter);
+    }
+
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -47,25 +55,34 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                 String packageName = intent.getDataString();
                 Log.e(TAG, "安装了:" + packageName);
 
-                // Silent Install
-                Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
-                // Start CCP Service.
-                Intent intentToService = new Intent(Config.ccpserviceStartAction);
-                intentToService.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                context.sendBroadcast(intentToService);
-                if (bindCCPService) {
-                    // Bind AIDL.
-                    if (iccpAidlInterface == null) {
-                        Intent it = new Intent();
-                        //service action.
-                        it.setAction("coretronic.intent.action.aidl");
-                        //service package name.
-                        it.setPackage("com.coretronic.ccpservice");
-                        context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
-                        Config.isBindService = true;
+                if (isCCPService) {
+                    // Silent Install
+                    Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
+                    // Start CCP Service.
+                    Intent intentToService = new Intent(Config.ccpserviceStartAction);
+                    intentToService.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                    context.sendBroadcast(intentToService);
+                    if (bindCCPService) {
+                        // Bind AIDL.
+                        if (iccpAidlInterface == null) {
+                            Intent it = new Intent();
+                            //service action.
+                            it.setAction("coretronic.intent.action.aidl");
+                            //service package name.
+                            it.setPackage("com.coretronic.ccpservice");
+                            context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+                            Config.isBindService = true;
+                        }
                     }
+                    context.unregisterReceiver(broadcastReceiver);
+                } else {
+                    Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "*****starting Shadow Service");
+                    Intent intentToShadow = new Intent(Config.shadowStartAction);
+                    intentToShadow.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                    context.sendBroadcast(intent);
+                    context.unregisterReceiver(broadcastReceiver);
                 }
-                context.unregisterReceiver(broadcastReceiver);
             }
         }
     };
@@ -99,15 +116,15 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
             Runtime.getRuntime().exec(new String[]{"chmod", "777", "/system/priv-app"});
         } catch (IOException e) {}
 
-        if (isCCPService) {
-            try {
-                Uri fileUri = Uri.fromFile(new File(filePath));
-                InputStream is = context.getContentResolver().openInputStream(fileUri);
-                SilentInstall.startInstall(context, filePath);
-            } catch (IOException e) {
-                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+
+        try {
+            Uri fileUri = Uri.fromFile(new File(filePath));
+            InputStream is = context.getContentResolver().openInputStream(fileUri);
+            SilentInstall.startInstall(context, filePath);
+        } catch (IOException e) {
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+
     }
 
     @Override
