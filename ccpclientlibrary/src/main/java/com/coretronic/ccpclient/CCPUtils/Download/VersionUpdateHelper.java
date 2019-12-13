@@ -10,8 +10,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpservice.ICCPAidlInterface;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +47,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.intent.action.PACKAGE_ADDED");
         filter.addDataScheme("package");
-        context.registerReceiver(broadcastReceiver, filter);
+        context.registerReceiver(broadcastReceiverForShadow, filter);
     }
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -75,13 +77,24 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                         }
                     }
                     context.unregisterReceiver(broadcastReceiver);
-                } else {
+                }
+            }
+        }
+    };
+
+    BroadcastReceiver broadcastReceiverForShadow = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {
+                String packageName = intent.getDataString();
+                Log.e(TAG, "安装了:" + packageName);
+
+                if (!isCCPService) {
                     Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "*****starting Shadow Service");
                     Intent intentToShadow = new Intent(Config.shadowStartAction);
                     intentToShadow.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                    context.sendBroadcast(intent);
-                    context.unregisterReceiver(broadcastReceiver);
+                    context.sendBroadcast(intentToShadow);
                 }
             }
         }
