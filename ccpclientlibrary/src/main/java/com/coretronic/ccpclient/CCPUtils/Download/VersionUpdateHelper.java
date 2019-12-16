@@ -1,9 +1,6 @@
 package com.coretronic.ccpclient.CCPUtils.Download;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Environment;
@@ -36,69 +33,69 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         this.serviceConnection = serviceConnection;
         this.bindCCPService = bindCCPService;
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.intent.action.PACKAGE_ADDED");
-        filter.addDataScheme("package");
-        context.registerReceiver(broadcastReceiver, filter);
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("android.intent.action.PACKAGE_ADDED");
+//        filter.addDataScheme("package");
+//        context.registerReceiver(broadcastReceiver, filter);
     }
 
     public VersionUpdateHelper(Context context) {
         this.context = context;
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.intent.action.PACKAGE_ADDED");
-        filter.addDataScheme("package");
-        context.registerReceiver(broadcastReceiverForShadow, filter);
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("android.intent.action.PACKAGE_ADDED");
+//        filter.addDataScheme("package");
+//        context.registerReceiver(broadcastReceiverForShadow, filter);
     }
 
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {
-                String packageName = intent.getDataString();
-                Log.e(TAG, "安装了:" + packageName);
+//    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {
+//                String packageName = intent.getDataString();
+//                Log.e(TAG, "安装了:" + packageName);
+//
+//                if (isCCPService) {
+//                    // Silent Install
+//                    Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
+//                    // Start CCP Service.
+//                    Intent intentToService = new Intent(Config.ccpserviceStartAction);
+//                    intentToService.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+//                    context.sendBroadcast(intentToService);
+//                    if (bindCCPService) {
+//                        // Bind AIDL.
+//                        if (iccpAidlInterface == null) {
+//                            Intent it = new Intent();
+//                            //service action.
+//                            it.setAction("coretronic.intent.action.aidl");
+//                            //service package name.
+//                            it.setPackage("com.coretronic.ccpservice");
+//                            context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+//                            Config.isBindService = true;
+//                        }
+//                    }
+//                    context.unregisterReceiver(broadcastReceiver);
+//                }
+//            }
+//        }
+//    };
 
-                if (isCCPService) {
-                    // Silent Install
-                    Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
-                    // Start CCP Service.
-                    Intent intentToService = new Intent(Config.ccpserviceStartAction);
-                    intentToService.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                    context.sendBroadcast(intentToService);
-                    if (bindCCPService) {
-                        // Bind AIDL.
-                        if (iccpAidlInterface == null) {
-                            Intent it = new Intent();
-                            //service action.
-                            it.setAction("coretronic.intent.action.aidl");
-                            //service package name.
-                            it.setPackage("com.coretronic.ccpservice");
-                            context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
-                            Config.isBindService = true;
-                        }
-                    }
-                    context.unregisterReceiver(broadcastReceiver);
-                }
-            }
-        }
-    };
-
-    BroadcastReceiver broadcastReceiverForShadow = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {
-                String packageName = intent.getDataString();
-                Log.e(TAG, "安装了:" + packageName);
-
-                if (!isCCPService) {
-                    Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "*****starting Shadow Service");
-                    Intent intentToShadow = new Intent(Config.shadowStartAction);
-                    intentToShadow.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                    context.sendBroadcast(intentToShadow);
-                }
-            }
-        }
-    };
+//    BroadcastReceiver broadcastReceiverForShadow = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {
+//                String packageName = intent.getDataString();
+//                Log.e(TAG, "安装了:" + packageName);
+//
+//                if (!isCCPService) {
+//                    Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
+//                    Log.d(TAG, "*****starting Shadow Service");
+//                    Intent intentToShadow = new Intent(Config.shadowStartAction);
+//                    intentToShadow.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+//                    context.sendBroadcast(intentToShadow);
+//                }
+//            }
+//        }
+//    };
 
     public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isCCPService) {
         this.md5 = md5;
