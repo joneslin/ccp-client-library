@@ -4,12 +4,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.coretronic.ccpclient.CCPUtils.Download.SilentInstall;
 import com.coretronic.ccpclient.CCPUtils.Example.LoggerExample;
 import com.coretronic.ccpclient.CCPUtils.Interface.CCPAidlInterface;
 import com.coretronic.ccpclient.CCPUtils.CCPStarter;
 import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpservice.ICCPAidlCallback;
 import com.coretronic.ccpservice.ICCPAidlInterface;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +59,26 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                 Log.d("AIDL Callback", "CCP Service Get Ready, please send DeviceID and TenantID") ;
 
                 // TODO 4. 重要：傳註冊資訊，需要傳送兩個值，分別為DeviceID(由各單位自行定義) 與 TenantID(範例中為optoma TenantID)。
-                iccpAidlInterface.sendRegisterInfo("Optoma-"+android.os.Build.SERIAL, "5b2e092f-0751-4480-8154-9dece5398ddf");
+                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"--2", "5b2e092f-0751-4480-8154-9dece5398ddf");
+            }
+
+            @Override
+            public void apkReadyToInstall(String packageName, String folderPath, String fileName) throws RemoteException {
+                Log.d("AIDL Callback", "apkReadyToInstall ");
+                //
+
+                String filePath = folderPath +"/"+ fileName;
+                Log.d("APK installer", "apkReadyToInstall "+filePath);
+                iccpAidlInterface.sendOtaStatus(packageName,"applying");
+                if(SilentInstall.startInstall(filePath))
+                {
+                    iccpAidlInterface.sendOtaStatus(packageName,"current");
+                }
+                else
+                {
+                    iccpAidlInterface.sendOtaStatus(packageName,"error");
+                }
+                //
             }
         };
 
@@ -77,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             // TODO 7.重要：將要被CCP平台控管的android package name，透過beControlledPackageName List回傳給CCP agent service.
             List<String> beControlledPackageName = new ArrayList<>();
             beControlledPackageName.add("com.coretronic.ccpservice");
+            beControlledPackageName.add("com.coretronic.ccpclient");
+            beControlledPackageName.add("com.CiCS.ProjectorController");
             String sendControlPackageNameStatus = iccpAidlInterface.sendControlPackageNameArray(beControlledPackageName);
 
         } catch (RemoteException e) {
