@@ -11,4 +11,6 @@ oneway interface ICCPAidlCallback {
 
     void ccpServiceReady(String messageCode);
 
+    void apkReadyToInstall(String packageName, String folderPath, String fileName);
+
 }
