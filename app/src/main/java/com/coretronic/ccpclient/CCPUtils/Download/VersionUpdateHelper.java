@@ -25,6 +25,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     private boolean bindCCPService = false;
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
+    private boolean isShadow = false;
 
     public VersionUpdateHelper(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService) {
         this.context = context;
@@ -33,11 +34,16 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         this.bindCCPService = bindCCPService;
     }
 
-    public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isCCPService) {
+    public VersionUpdateHelper(Context context) {
+        this.context = context;
+    }
+
+    public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isCCPService, boolean isShadow) {
         this.md5 = md5;
         this.saveFileName = saveFileName;
         this.fileUrl = fileUrl;
         this.isCCPService = isCCPService;
+        this.isShadow = isShadow;
         task = new APKDownloadTask(context, this, this, this, this.saveFileName, this.fileUrl);
         task.execute();
     }
@@ -109,6 +115,19 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                 }
             } else {
                 Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+                //shadow service need to retry.
+                retryToDownload();
+            }
+        }
+        else if(isShadow) {
+            if (SilentInstall.startInstall(filePath)) {
+                Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
+
+                // Start CCP Service.
+                Intent intent = new Intent(Config.shadowStartAction);
+                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            } else {
+                Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
                 //shadow service need to retry.
                 retryToDownload();
             }
