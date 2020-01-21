@@ -13,4 +13,6 @@ oneway interface ICCPAidlCallback {
 
     void apkReadyToInstall(String packageName, String folderPath, String fileName);
 
+    void firmwareReadyToInstall(String title, String folderPath, String fileName);
+
 }
