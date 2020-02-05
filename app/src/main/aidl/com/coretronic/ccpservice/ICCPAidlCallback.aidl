@@ -15,4 +15,6 @@ oneway interface ICCPAidlCallback {
 
     void firmwareReadyToInstall(String title, String folderPath, String fileName);
 
+    void getSoftwareUpdate(String updateMsg);
+    void getFirmwareUpdate(String updateMsg);
 }

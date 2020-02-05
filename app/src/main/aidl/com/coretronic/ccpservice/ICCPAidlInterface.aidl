@@ -19,7 +19,7 @@ interface ICCPAidlInterface {
 
     void sendRegisterInfo(String deviceId, String tenantId);
 
-    String sendOtaStatus(String packageName, String otaStatus);
+    String sendOtaStatus(String packageName, String otaStatus, String localVersion, String updateVersion);
 
-    String sendFirmwareOtaStatus(String title, String otaStatus);
+    String sendFirmwareOtaStatus(String title, String otaStatus, String localVersion, String updateVersion);
 }

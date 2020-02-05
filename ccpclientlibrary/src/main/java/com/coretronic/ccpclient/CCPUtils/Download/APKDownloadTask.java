@@ -2,6 +2,7 @@ package com.coretronic.ccpclient.CCPUtils.Download;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.RemoteException;
 import android.os.StatFs;
 import android.util.Log;
 
@@ -48,17 +49,17 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
     @Override
     protected void onPostExecute(List<File> files) {
         if (!downloadInterrupt) {
-            onTaskFinished.doSomething();
+            onTaskFinished.finish(localFilePath+fileName);
             Log.d(TAG, "onPostExecute = " + "download complete");
         } else {
             Log.d(TAG, "onPostExecute = " + "download cancel");
-            onCancelled.cancell();
+            onCancelled.cancel();
         }
     }
 
     @Override
     protected void onCancelled() {
-        onCancelled.cancell();
+        onCancelled.cancel();
 
     }
 
@@ -140,11 +141,11 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
     }
 
     public interface OnTaskFinished {
-        void doSomething();
+        void finish(String apkFilePath);
     }
 
     public interface OnCancelled {
-        void cancell();
+        void cancel();
     }
 
     public interface OnProgress {

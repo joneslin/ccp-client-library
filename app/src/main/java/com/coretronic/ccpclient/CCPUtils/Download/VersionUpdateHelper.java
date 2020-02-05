@@ -50,7 +50,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 
     //安裝失敗會retry，還有下載失敗會retry，retry的時間在config中設定。
     @Override
-    public void doSomething() {
+    public void finish(String apkFilePath) {
         File rootFile = new File(context.getCacheDir(), "/download");
 
         Log.d(TAG, "Complete: complete " + saveFileName);
@@ -162,8 +162,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     }
 
     @Override
-    public void cancell() {
-        Log.d(TAG, "cancell: cancell");
+    public void cancel() {
+        Log.d(TAG, "cancel: cancel");
         Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
 
         //CCP service need to retry.

@@ -1,9 +1,16 @@
 package com.coretronic.ccpclient.CCPUtils.Download;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 
 /**
@@ -77,4 +84,35 @@ public class SilentInstall {
         }
         return result;
     }
+
+//    public static boolean startInstallWithReflection(Context context, String apkPath) {
+//        installAppWithReflection(context, apkPath);
+//        return true;
+//    }
+//
+//    public static void installAppWithReflection(Context context, String path) {
+//        String TAG = SilentInstall.class.getSimpleName();
+//        try {
+//            Log.e(TAG, "[installAppWithReflection][Strat]");
+//            Log.e(TAG, "[installAppWithReflection][Path]" + path);
+//            installWithSystem(context, path);
+//        } catch (Exception e) {
+//            Log.e(TAG, e.getMessage(), e);
+//        }
+//    }
+//
+//    public static void installWithSystem(Context context, String path) {
+//        String TAG = SilentInstall.class.getSimpleName();
+//        try {
+//            Uri packageUri = Uri.fromFile(new File(path));
+//            Log.e(TAG, "[installWithSystem][URI]" + packageUri);
+//            PackageManager pkgManager = context.getPackageManager();
+//            pkgManager.getClass().getMethod("installPackage", new Class[]{Uri.class, IPackageInstallObserver.class, Integer.TYPE, String.class}).invoke(pkgManager, new Object[]{packageUri, null, Integer.valueOf(2), ""});
+//            Log.e(TAG, "[installWithSystem][END]");
+//        } catch (NoSuchMethodException| InvocationTargetException | IllegalAccessException e){
+//            Log.e(TAG, "silent install Error, " + e);
+//            Toast.makeText(context, "APK更新失敗(Reflect Error)，可能沒有Sign System Key", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 }
+

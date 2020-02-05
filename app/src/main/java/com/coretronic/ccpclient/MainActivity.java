@@ -4,16 +4,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.coretronic.ccpclient.CCPUtils.Download.PackageHelper;
 import com.coretronic.ccpclient.CCPUtils.Download.SilentInstall;
 import com.coretronic.ccpclient.CCPUtils.Example.LoggerExample;
 import com.coretronic.ccpclient.CCPUtils.Interface.CCPAidlInterface;
 import com.coretronic.ccpclient.CCPUtils.CCPStarter;
 import com.coretronic.ccpclient.CCPUtils.Config;
+import com.coretronic.ccpclient.CCPUtils.Model.Software;
 import com.coretronic.ccpservice.ICCPAidlCallback;
 import com.coretronic.ccpservice.ICCPAidlInterface;
+import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,14 +71,14 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
 
                 String filePath = folderPath +"/"+ fileName;
                 Log.d("APK installer", "apkReadyToInstall "+filePath);
-                iccpAidlInterface.sendOtaStatus(packageName,"applying");
+                iccpAidlInterface.sendOtaStatus(packageName,"applying","","");
                 if(SilentInstall.startInstall(filePath))
                 {
-                    iccpAidlInterface.sendOtaStatus(packageName,"current");
+                    iccpAidlInterface.sendOtaStatus(packageName,"current","","");
                 }
                 else
                 {
-                    iccpAidlInterface.sendOtaStatus(packageName,"error");
+                    iccpAidlInterface.sendOtaStatus(packageName,"error","","");
                 }
                 //
             }
@@ -86,7 +87,51 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             public void firmwareReadyToInstall(String title, String folderPath, String fileName) throws RemoteException {
                 Log.d("AIDL Callback", "firmwareReadyToInstall "+title);
                 // TODO: 執行韌體安裝
-                iccpAidlInterface.sendFirmwareOtaStatus(title,"applying");
+                iccpAidlInterface.sendFirmwareOtaStatus(title,"applying","","");
+            }
+
+            @Override
+            public void getSoftwareUpdate(String updateMsg) throws RemoteException {
+                Log.d("AIDL Callback", "getSoftwareUpdate: "+updateMsg);
+                Software software = new Gson().fromJson(updateMsg, Software.class);
+
+                // TODO: 比對package版本
+                String packageName = (software.getTitle() != null && !software.getTitle().equals("")) ? software.getTitle() : "";
+                String updatePackageVersion = (software.getVersion() != null && !software.getVersion().equals("")) ? software.getVersion() : "";
+                String localPackageVersion = PackageHelper.getVersionName(packageName, getBaseContext());
+
+                if(PackageHelper.isPackageExisted(packageName,getBaseContext()) && localPackageVersion.equals(updatePackageVersion)) {
+                    // 已經是最新版本
+                    Log.e("ota",packageName + localPackageVersion + "已經是最新版本");
+                } else {
+                    // TODO: 下載並安裝
+                    Log.e("ota",software.getName() + " ver." + localPackageVersion+" --> ver." + updatePackageVersion);
+                    OtaHelperExample otaHelper = new OtaHelperExample(getBaseContext());
+                    otaHelper.startUpdate(iccpAidlInterface, software,false);
+                }
+            }
+
+            @Override
+            public void getFirmwareUpdate(String updateMsg) throws RemoteException {
+                Log.d("AIDL Callback", "getFirmwareUpdate: "+updateMsg);
+                Software firmware = new Gson().fromJson(updateMsg, Software.class);
+                Log.e("ota",firmware.getName());
+
+                // TODO: 比對package版本
+                String packageName = (firmware.getTitle() != null && !firmware.getTitle().equals("")) ? firmware.getTitle() : "";
+                String updateFirmwareVersion = (firmware.getVersion() != null && !firmware.getVersion().equals("")) ? firmware.getVersion() : "";
+                // TODO: 取得firmware版本
+                String localFirmwareVersion = "unknown";
+
+                if(PackageHelper.isPackageExisted(packageName,getBaseContext()) && localFirmwareVersion.equals(updateFirmwareVersion)) {
+                    // 已經是最新版本
+                    Log.e("ota",packageName + localFirmwareVersion + "已經是最新版本");
+                } else {
+                    // TODO: 下載並安裝
+                    Log.e("ota",firmware.getName() + " ver." + localFirmwareVersion+" --> ver." + updateFirmwareVersion);
+                    OtaHelperExample otaHelper = new OtaHelperExample(getBaseContext());
+                    otaHelper.startUpdate(iccpAidlInterface, firmware,true);
+                }
             }
         };
 

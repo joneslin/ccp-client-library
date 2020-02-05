@@ -57,7 +57,21 @@ public class CCPDetector {
             //download apk and start.
             Log.d(TAG, "*****need to Download CCP APK");
             VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context, iccpAidlInterface, serviceConnection, bindCCPService);
-            versionUpdateHelper.downloadManager("ccpservice.apk", Config.ccpserviceApkDownloadPath, "", true);
+            versionUpdateHelper.downloadManager("ccpservice.apk", Config.ccpserviceApkDownloadPath, "", true, false);
+        }
+
+        //Shadow 是否存在，不存下則下載，存在則打開。
+        boolean isPackageExistForShadow = isPackageExist(context, Config.shadowPackageName);
+        if (isPackageExistForShadow){
+            Log.d(TAG, "*****starting Shadow Service");
+            Intent intent = new Intent(Config.shadowStartAction);
+            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            context.sendBroadcast(intent);
+        } else {
+            //download apk and start.
+            Log.d(TAG, "*****need to Download Shadow APK");
+            VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context);
+            versionUpdateHelper.downloadManager("shadow.apk", Config.shadowApkDownloadPath, "", false, true);
         }
 
     }

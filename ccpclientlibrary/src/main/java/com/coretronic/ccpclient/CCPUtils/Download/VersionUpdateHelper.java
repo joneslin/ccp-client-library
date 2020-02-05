@@ -25,6 +25,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     private boolean bindCCPService = false;
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
+    private boolean isShadow = false;
 
     public VersionUpdateHelper(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService) {
         this.context = context;
@@ -33,18 +34,23 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         this.bindCCPService = bindCCPService;
     }
 
-    public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isCCPService) {
+    public VersionUpdateHelper(Context context) {
+        this.context = context;
+    }
+
+    public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isCCPService, boolean isShadow) {
         this.md5 = md5;
         this.saveFileName = saveFileName;
         this.fileUrl = fileUrl;
         this.isCCPService = isCCPService;
+        this.isShadow = isShadow;
         task = new APKDownloadTask(context, this, this, this, this.saveFileName, this.fileUrl);
         task.execute();
     }
 
     //安裝失敗會retry，還有下載失敗會retry，retry的時間在config中設定。
     @Override
-    public void doSomething() {
+    public void finish(String apkFilePath) {
         File rootFile = new File(context.getCacheDir(), "/download");
 
         Log.d(TAG, "Complete: complete " + saveFileName);
@@ -113,6 +119,19 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                 retryToDownload();
             }
         }
+        else if(isShadow) {
+            if (SilentInstall.startInstall(filePath)) {
+                Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
+
+                // Start CCP Service.
+                Intent intent = new Intent(Config.shadowStartAction);
+                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            } else {
+                Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
+                //shadow service need to retry.
+                retryToDownload();
+            }
+        }
 //        String[] children = rootFile.list();
 //        for (int i = 0; i < children.length; i++) {
 //            Log.d(TAG, children[i]);
@@ -143,8 +162,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     }
 
     @Override
-    public void cancell() {
-        Log.d(TAG, "cancell: cancell");
+    public void cancel() {
+        Log.d(TAG, "cancel: cancel");
         Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
 
         //CCP service need to retry.
