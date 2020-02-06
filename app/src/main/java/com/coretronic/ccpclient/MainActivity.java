@@ -65,32 +65,6 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             }
 
             @Override
-            public void apkReadyToInstall(String packageName, String folderPath, String fileName) throws RemoteException {
-                Log.d("AIDL Callback", "apkReadyToInstall ");
-                //
-
-                String filePath = folderPath +"/"+ fileName;
-                Log.d("APK installer", "apkReadyToInstall "+filePath);
-                iccpAidlInterface.sendOtaStatus(packageName,"applying","","");
-                if(SilentInstall.startInstall(filePath))
-                {
-                    iccpAidlInterface.sendOtaStatus(packageName,"current","","");
-                }
-                else
-                {
-                    iccpAidlInterface.sendOtaStatus(packageName,"error","","");
-                }
-                //
-            }
-
-            @Override
-            public void firmwareReadyToInstall(String title, String folderPath, String fileName) throws RemoteException {
-                Log.d("AIDL Callback", "firmwareReadyToInstall "+title);
-                // TODO: 執行韌體安裝
-                iccpAidlInterface.sendFirmwareOtaStatus(title,"applying","","");
-            }
-
-            @Override
             public void getSoftwareUpdate(String updateMsg) throws RemoteException {
                 Log.d("AIDL Callback", "getSoftwareUpdate: "+updateMsg);
                 Software software = new Gson().fromJson(updateMsg, Software.class);

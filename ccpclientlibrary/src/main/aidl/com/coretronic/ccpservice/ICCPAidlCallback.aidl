@@ -11,10 +11,7 @@ oneway interface ICCPAidlCallback {
 
     void ccpServiceReady(String messageCode);
 
-    void apkReadyToInstall(String packageName, String folderPath, String fileName);
-
-    void firmwareReadyToInstall(String title, String folderPath, String fileName);
-
     void getSoftwareUpdate(String updateMsg);
+
     void getFirmwareUpdate(String updateMsg);
 }
