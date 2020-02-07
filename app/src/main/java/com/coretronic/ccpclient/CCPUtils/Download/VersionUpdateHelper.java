@@ -14,7 +14,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKDownloadTask.OnCancelled, APKDownloadTask.OnProgress {
+public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKDownloadTask.OnCancelled, APKDownloadTask.OnProgress, APKDownloadTask.OnError {
     private String TAG = VersionUpdateHelper.class.getSimpleName();
     private Context context;
     private APKDownloadTask task = null;
@@ -45,7 +45,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         this.isCCPService = isCCPService;
         this.isShadow = isShadow;
         String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
-        task = new APKDownloadTask(context, this, this, this, savePath, this.saveFileName, this.fileUrl);
+        task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
         task.execute();
     }
 
@@ -186,7 +186,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     private void newDownloadTask(){
         task = null;
         String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
-        task = new APKDownloadTask(context, this, this, this, savePath, this.saveFileName, this.fileUrl);
+        task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
         task.execute();
     }
 
@@ -199,5 +199,10 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         if (pastPercent >=100){
             pastPercent=0;
         }
+    }
+
+    @Override
+    public void error(String errorMsg) {
+        Log.e(TAG, "error: " + errorMsg);
     }
 }

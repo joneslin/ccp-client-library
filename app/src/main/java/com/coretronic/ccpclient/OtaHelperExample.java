@@ -10,7 +10,7 @@ import com.coretronic.ccpclient.CCPUtils.Download.SilentInstall;
 import com.coretronic.ccpclient.CCPUtils.Model.Software;
 import com.coretronic.ccpservice.ICCPAidlInterface;
 
-public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloadTask.OnProgress, APKDownloadTask.OnTaskFinished {
+public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloadTask.OnProgress, APKDownloadTask.OnTaskFinished, APKDownloadTask.OnError {
     private Context context;
     private APKDownloadTask task = null;
     private Software currentSoftware = null;
@@ -42,9 +42,10 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
                 e.printStackTrace();
             }
         }
-        String savePath =context.getCacheDir().getPath() + "/download/";
-        task = new APKDownloadTask(context, this, this, this, savePath, software.getName(), software.getUri());
-        if(!task.isApkExist(currentSoftware.getChecksum()))
+//        String savePath =context.getCacheDir().getPath() + "/download/";
+        String savePath = "/sdcard/Download/";
+        task = new APKDownloadTask(context, this, this, this, this,savePath, software.getName(), software.getUri());
+//        if(!task.isApkExist(currentSoftware.getChecksum()))
             task.execute();
     }
 
@@ -53,11 +54,14 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
         Log.d("OtaHelper",  "download cancelled");
     }
 
+    private  int lastProgress=0;
     @Override
     public void progress(Long... values) {
         float currentFloat = (values[0].floatValue() / values[1].floatValue()) * 100;
         int currentPercent = (int) currentFloat;
-        Log.d("OtaHelper", currentSoftware.getTitle() + " progress: progress: " + currentPercent + "%");
+        if(currentPercent!=lastProgress)
+            Log.d("OtaHelper", currentSoftware.getTitle() + " progress: progress: " + currentPercent + "%");
+        lastProgress = currentPercent;
     }
 
     @Override
@@ -95,5 +99,10 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void error(String errorMsg) {
+
     }
 }

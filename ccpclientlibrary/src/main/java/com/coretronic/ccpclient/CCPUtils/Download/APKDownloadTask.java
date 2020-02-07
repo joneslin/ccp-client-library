@@ -29,15 +29,23 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
     private OnTaskFinished onTaskFinished;
     private OnCancelled onCancelled;
     private OnProgress onProgress;
+    private OnError onError;
     private String fileName;
     private String fileUrl;
     private String localFilePath = "";
     private boolean downloadInterrupt = false;
 
-    public APKDownloadTask(Context context, OnTaskFinished onTaskFinished, OnCancelled onCancelled, OnProgress onProgress, String savePath, String fileName, String fileUrl) {
+    private OkHttpClient httpClient = null;
+    private long targetSize = 0L;
+    private RandomAccessFile savedFile = null;
+    private boolean needsRetry = true;
+    private long retryPeriod = 5000;
+
+    public APKDownloadTask(Context context, OnTaskFinished onTaskFinished, OnCancelled onCancelled, OnProgress onProgress, OnError onError, String savePath, String fileName, String fileUrl) {
         this.onTaskFinished = onTaskFinished;
         this.onCancelled = onCancelled;
         this.onProgress = onProgress;
+        this.onError = onError;
         this.fileName = fileName;
         this.fileUrl = fileUrl;
         this.context = context;
@@ -68,6 +76,153 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
     }
 
     @Override
+    protected List<File> doInBackground(Void... params) {
+        long freeSize = storage_free();
+        Log.d(TAG, "Storage SIZE:" + freeSize);
+
+        //當內存小於1G，即清理所有下載的媒體檔
+        if (freeSize < 1000000000) {
+            clearApplicationData();
+            Log.d(TAG, "Clear All Media Data");
+        }
+
+        File folder = new File(localFilePath);
+        if (folder.isDirectory()) {
+        } else {
+            folder.mkdirs();
+        }
+
+        if (!isCancelled()) {
+            targetSize = getContentLength(fileUrl);
+            httpClient = RouterAzure.getUnsafeOkHttpClient();
+            savedFile = null;
+            needsRetry = true;
+
+
+
+            //through interface to show current download count and total.
+//            oncount.currentCount(i + 1, fileUrlArrayList.size(), fileName);
+//            progress.getCurrentFileName(fileName);
+
+            Log.d(TAG, "willDownloadFileName: " + fileName);
+            //init file
+            File file = new File(localFilePath + "/" +fileName);
+
+            //若檔案存在，且預計下載的檔案大小與Local端的檔案大小一致，就不進行確認與下載
+            if (file.exists() && targetSize > 0 && file.length() == targetSize) {
+                Log.d(TAG, fileName + ": already download and file size is right");
+
+            } else {
+                while (needsRetry) {
+                    try {
+                        Log.d(TAG, "Start downloading");
+                        Call call = httpClient.newCall(new Request.Builder().
+                                header("Range", "bytes=" + file.length() + "-" + targetSize).  // 續傳專案參數
+                                url(fileUrl).get().build());
+
+                        Response response = call.execute();
+                        Log.d(TAG, "ResponseCode: " + response.code());
+
+                        // 訪問續傳，成功回傳206
+                        if (response.code() == 206 && targetSize != 0) {
+                            Log.d(TAG, "ResponseCode: 206, " + "bytes=" + file.length());
+                            InputStream inputStream = response.body().byteStream();
+                            byte[] buff = new byte[1024];
+                            long downloaded = 0;
+
+                            // 4. 開始下載
+                            publishProgress(0L, targetSize);
+                            savedFile = new RandomAccessFile(file, "rw");  //開始訪問指定的文件
+                            savedFile.seek(file.length());  //跳過已經下載的文件長度
+                            while (true) {
+                                int readed = inputStream.read(buff);
+                                if (readed == -1) {
+                                    break;
+                                }
+                                // 5. Write buff to file
+                                savedFile.write(buff, 0, readed);
+                                downloaded += readed;
+                                publishProgress(savedFile.length(), targetSize);
+                                if (isCancelled()) {
+                                    Log.d(TAG, "TaskDownload:" + "中途取消");
+                                    downloadInterrupt = true;
+                                    return null; //中途取消
+                                }
+                            }
+
+                            savedFile.close();
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+
+                            Log.d(TAG, fileName + " Download ok");
+                            needsRetry = false;
+                        }
+                        // **** if response is not equal to 206 (can't support continue download), the response will return 200 when internet is ok. ****
+                        else if (response.code() == 200 && targetSize != 0) {
+                            Log.d(TAG, "ResponseCode: 200");
+                            InputStream inputStream = response.body().byteStream();
+                            byte[] buff = new byte[1024];
+                            long downloaded = 0;
+
+                            // 4. 開始下載
+                            File compressedFile = new File(localFilePath, fileName);
+                            OutputStream outputStream = new FileOutputStream(compressedFile);
+                            publishProgress(0L, targetSize);
+
+                            while (true) {
+                                int readed = inputStream.read(buff);
+                                if (readed == -1) {
+                                    break;
+                                }
+                                // write buff to file
+                                outputStream.write(buff, 0, readed);
+                                downloaded += readed;
+                                publishProgress(downloaded, targetSize);
+
+                                if (isCancelled()) {
+                                    Log.d(TAG, "TaskDownload:" + "中途取消");
+                                    downloadInterrupt = true;
+                                    return null; //中途取消
+                                }
+                            }
+                            outputStream.flush();
+                            outputStream.close();
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            downloadInterrupt = false;
+                            Log.d(TAG, fileName + " Download ok");
+                            needsRetry = false;
+                            return null;
+                        } else if (response.code() == 416 && targetSize != 0) {
+                            // response code = 416 is already download.
+                            needsRetry = false;
+                        } else {
+                            downloadInterrupt = true;
+                            return null;  //無法連線
+                        }
+                    }
+                    catch (Exception e) {
+                        Log.e(TAG, "download exception"+e.getMessage());
+                        downloadInterrupt = true;
+//                        e.printStackTrace();
+                        onError.error(e.getMessage());
+
+                    }
+                    Log.e(TAG, "Sleep" + retryPeriod + "milliseconds ...");
+                    try {
+                        Thread.sleep(retryPeriod);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        } else {
+//            break;
+        }
+        return null;
+    }
 //    protected List<File> doInBackground(Void... params) {
 //        long freeSize = storage_free();
 //        Log.d(TAG, "Storage SIZE:" + freeSize);
@@ -76,129 +231,6 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
 //        if (freeSize < 1000000000) {
 //            clearApplicationData();
 //            Log.d(TAG, "Clear All Media Data");
-//        }
-//
-//        if (!isCancelled()) {
-////            willDownloadFileName = UrlDecodeHelper.deleteUrlDomainAndUrlDecode(fileUrlArrayList.get(i));
-////            willDownloadFileUrl = fileUrlArrayList.get(i);
-//            targetSize = getContentLength(willDownloadFileUrl);
-//            httpClient = RouterAzure.getUnsafeOkHttpClient();
-//            savedFile = null;
-//            needsRetry = true;
-//
-//
-//
-//            //through interface to show current download count and total.
-////            oncount.currentCount(i + 1, fileUrlArrayList.size(), fileName);
-////            progress.getCurrentFileName(fileName);
-//
-//            Log.d(TAG, "willDownloadFileName: " + fileName);
-//            //init file
-//            File file = new File(localFilePath + fileName);
-//
-//            //若檔案存在，且預計下載的檔案大小與Local端的檔案大小一致，就不進行確認與下載
-//            if (file.exists() && targetSize > 0 && file.length() == targetSize) {
-//                Log.d(TAG, willDownloadFileName + ": already download and file size is right");
-//                completeFileNames.add(file.getName());
-//            } else {
-//                try {
-//                    while (needsRetry) {
-//                        Log.d(TAG, "Start downloading");
-//                        Call call = httpClient.newCall(new Request.Builder().
-//                                header("Range", "bytes=" + file.length() + "-" + targetSize).  // 續傳專案參數
-//                                url(willDownloadFileUrl).get().build());
-//
-//                        Response response = call.execute();
-//                        Log.d(TAG, "ResponseCode: " + response.code());
-//
-//                        // 訪問續傳，成功回傳206
-//                        if (response.code() == 206 && targetSize != 0) {
-//                            Log.d(TAG, "ResponseCode: 206, " + "bytes=" + file.length());
-//                            InputStream inputStream = response.body().byteStream();
-//                            byte[] buff = new byte[1024];
-//                            long downloaded = 0;
-//
-//                            // 4. 開始下載
-//                            publishProgress(0L, targetSize);
-//                            savedFile = new RandomAccessFile(file, "rw");  //開始訪問指定的文件
-//                            savedFile.seek(file.length());  //跳過已經下載的文件長度
-//                            while (true) {
-//                                int readed = inputStream.read(buff);
-//                                if (readed == -1) {
-//                                    break;
-//                                }
-//                                // 5. Write buff to file
-//                                savedFile.write(buff, 0, readed);
-//                                downloaded += readed;
-//                                publishProgress(savedFile.length(), targetSize);
-//                                if (isCancelled()) {
-//                                    Log.d(TAG, "TaskDownload:" + "中途取消");
-//                                    cancelled.cancell(this, "isCancelled()");
-//                                    return completeFileNames; //中途取消
-//                                }
-//                            }
-//
-//                            savedFile.close();
-//                            if (inputStream != null) {
-//                                inputStream.close();
-//                            }
-//
-//                            completeFileNames.add(file.getName());
-//                            Log.d(TAG, willDownloadFileName + " Download ok");
-//                            needsRetry = false;
-//                        }
-//                        // **** if response is not equal to 206 (can't support continue download), the response will return 200 when internet is ok. ****
-//                        else if (response.code() == 200 && targetSize != 0) {
-//                            Log.d(TAG, "ResponseCode: 200");
-//                            InputStream inputStream = response.body().byteStream();
-//                            byte[] buff = new byte[1024];
-//                            long downloaded = 0;
-//
-//                            // 4. 開始下載
-//                            File compressedFile = new File(localFilePath, willDownloadFileName);
-//                            OutputStream outputStream = new FileOutputStream(compressedFile);
-//                            publishProgress(0L, targetSize);
-//
-//                            while (true) {
-//                                int readed = inputStream.read(buff);
-//                                if (readed == -1) {
-//                                    break;
-//                                }
-//                                // write buff to file
-//                                outputStream.write(buff, 0, readed);
-//                                downloaded += readed;
-//                                publishProgress(downloaded, targetSize);
-//
-//                                if (isCancelled()) {
-//                                    Log.d(TAG, "TaskDownload:" + "中途取消");
-//                                    cancelled.cancell(this, "isCancelled()");
-//                                    return completeFileNames; //中途取消
-//                                }
-//                            }
-//                            outputStream.flush();
-//                            outputStream.close();
-//                            if (inputStream != null) {
-//                                inputStream.close();
-//                            }
-//                            completeFileNames.add(compressedFile.getName());
-//                            Log.d(TAG, willDownloadFileName + " Download ok");
-//                            needsRetry = false;
-//                        } else if (response.code() == 416 && targetSize != 0) {
-//                            // response code = 416 is already download.
-//                            completeFileNames.add(willDownloadFileName);
-//                            needsRetry = false;
-//                        } else {
-//                            cancelled.cancell(this, "檔案不存在於伺服器： " + willDownloadFileName);
-//                            return completeFileNames;  //無法連線
-//                        }
-//                    }
-//                } catch (Exception e) {
-//                    cancelled.cancell(this, "InterruptedException");
-//                    e.printStackTrace();
-//                }
-//            }
-//        } else {
-//            break;
 //        }
 //
 //        File folder = new File(localFilePath);
@@ -261,76 +293,6 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
 //        }
 //        return null;
 //    }
-    protected List<File> doInBackground(Void... params) {
-        long freeSize = storage_free();
-        Log.d(TAG, "Storage SIZE:" + freeSize);
-
-        //當內存小於1G，即清理所有下載的媒體檔
-        if (freeSize < 1000000000) {
-            clearApplicationData();
-            Log.d(TAG, "Clear All Media Data");
-        }
-
-        File folder = new File(localFilePath);
-        if (folder.isDirectory()) {
-        } else {
-            folder.mkdirs();
-        }
-
-        OkHttpClient httpClient = RouterAzure.getUnsafeOkHttpClient();
-        Call call = httpClient.newCall(new Request.Builder().url(fileUrl).get().build());
-        try {
-            Response response = call.execute();
-            if (response.code() == 200) {
-                Log.d(TAG, "200 OK");
-                InputStream inputStream = null;
-                try {
-                    inputStream = response.body().byteStream();
-                    byte[] buff = new byte[1024 * 4];
-                    long downloaded = 0;
-                    long target = response.body().contentLength();
-
-                    File compressedFile = new File(localFilePath, fileName);
-                    OutputStream outputStream = new FileOutputStream(compressedFile);
-                    publishProgress(0L, target);
-                    while (true) {
-                        int readed = inputStream.read(buff);
-                        if (readed == -1) {
-                            break;
-                        }
-                        // write buff to file
-                        outputStream.write(buff, 0, readed);
-                        downloaded += readed;
-                        publishProgress(downloaded, target);
-
-                        if (isCancelled()) {
-                            downloadInterrupt = true;
-                            break;
-//                                    return null; //中途取消
-                        }
-                    }
-                    outputStream.close();
-                } catch (IOException ignore) {
-                    Log.d(TAG, "IOException");
-                    downloadInterrupt = true;
-                    return null;  //例外處理
-                } finally {
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                }
-            } else {
-                Log.d(TAG, "no connection");
-                downloadInterrupt = true;
-                return null;  //無法連線
-            }
-        } catch (IOException e) {
-            downloadInterrupt = true;
-            e.printStackTrace();
-            return null;
-        }
-        return null;
-    }
 
     @Override
     protected void onProgressUpdate(Long... values) {
@@ -347,6 +309,10 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
 
     public interface OnProgress {
         void progress(Long... values);
+    }
+
+    public interface OnError {
+        void error(String errorMsg);
     }
 
     public long storage_free() {
@@ -431,5 +397,30 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
         }
 
         return md5;
+    }
+
+    public long getContentLength(String url) {
+        Log.d(TAG, "contentLength url:" + url);
+
+        try {
+            httpClient = RouterAzure.getUnsafeOkHttpClient();
+            Call call = httpClient.newCall(new Request.Builder().url(url).get().build());
+            Response response = call.execute();
+            if (response.code() == 200) {
+                Log.d(TAG, "contentLength:" + response.body().contentLength());
+                return response.body().contentLength();
+            } else {
+                return 0;
+            }
+
+        } catch (IOException e) {
+            downloadInterrupt = true;
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public void setRetryPeriod(long millis) {
+        retryPeriod = millis;
     }
 }
