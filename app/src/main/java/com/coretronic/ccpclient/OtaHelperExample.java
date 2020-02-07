@@ -42,9 +42,10 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
                 e.printStackTrace();
             }
         }
-
-        task = new APKDownloadTask(context, this, this, this, software.getName(), software.getUri());
-        task.execute();
+        String savePath =context.getCacheDir().getPath() + "/download/";
+        task = new APKDownloadTask(context, this, this, this, savePath, software.getName(), software.getUri());
+        if(!task.isApkExist(currentSoftware.getChecksum()))
+            task.execute();
     }
 
     @Override
