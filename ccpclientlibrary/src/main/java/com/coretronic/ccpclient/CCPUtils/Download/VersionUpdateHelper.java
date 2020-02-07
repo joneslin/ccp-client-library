@@ -44,7 +44,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         this.fileUrl = fileUrl;
         this.isCCPService = isCCPService;
         this.isShadow = isShadow;
-        task = new APKDownloadTask(context, this, this, this, this.saveFileName, this.fileUrl);
+        String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
+        task = new APKDownloadTask(context, this, this, this, savePath, this.saveFileName, this.fileUrl);
         task.execute();
     }
 
@@ -184,7 +185,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 
     private void newDownloadTask(){
         task = null;
-        task = new APKDownloadTask(context, this, this, this, this.saveFileName, this.fileUrl);
+        String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
+        task = new APKDownloadTask(context, this, this, this, savePath, this.saveFileName, this.fileUrl);
         task.execute();
     }
 
