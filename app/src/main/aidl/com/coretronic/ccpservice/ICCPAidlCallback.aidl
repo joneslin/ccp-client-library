@@ -14,4 +14,6 @@ oneway interface ICCPAidlCallback {
     void getSoftwareUpdate(String updateMsg);
 
     void getFirmwareUpdate(String updateMsg);
+
+    void getOtaInfo(String latestOTAByDeviceStr);
 }

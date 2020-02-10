@@ -198,14 +198,16 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                         } else if (response.code() == 416 && targetSize != 0) {
                             // response code = 416 is already download.
                             needsRetry = false;
+                            downloadInterrupt = false;
                         } else {
-                            downloadInterrupt = true;
-                            return null;  //無法連線
+                            downloadInterrupt = false;
+                            onError.error("ResponseCode: "+response.code());
+//                            return null;  //無法連線
                         }
                     }
                     catch (Exception e) {
                         Log.e(TAG, "download exception"+e.getMessage());
-                        downloadInterrupt = true;
+                        downloadInterrupt = false;
 //                        e.printStackTrace();
                         onError.error(e.getMessage());
 

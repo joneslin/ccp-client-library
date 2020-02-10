@@ -10,10 +10,12 @@ import com.coretronic.ccpclient.CCPUtils.Example.LoggerExample;
 import com.coretronic.ccpclient.CCPUtils.Interface.CCPAidlInterface;
 import com.coretronic.ccpclient.CCPUtils.CCPStarter;
 import com.coretronic.ccpclient.CCPUtils.Config;
+import com.coretronic.ccpclient.CCPUtils.Model.LatestOTAByDeviceGson;
 import com.coretronic.ccpclient.CCPUtils.Model.Software;
 import com.coretronic.ccpservice.ICCPAidlCallback;
 import com.coretronic.ccpservice.ICCPAidlInterface;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +109,13 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                     otaHelper.startUpdate(iccpAidlInterface, firmware,true);
                 }
             }
+
+            @Override
+            public void getOtaInfo(String latestOTAByDeviceStr) throws RemoteException {
+                Log.d("AIDL Callback", "Get Ota info From CCP Service: " + latestOTAByDeviceStr);
+                LatestOTAByDeviceGson latestOTAByDeviceGson = new Gson().fromJson(latestOTAByDeviceStr, LatestOTAByDeviceGson.class);
+                Log.d("Ota info", latestOTAByDeviceGson.getProduct().getName());
+            }
         };
 
         // TODO 5. 註冊AIDL CallBack.
@@ -130,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             beControlledPackageName.add("com.coretronic.ccpclient");
             beControlledPackageName.add("com.CiCS.ProjectorController");
             String sendControlPackageNameStatus = iccpAidlInterface.sendControlPackageNameArray(beControlledPackageName);
+
+            iccpAidlInterface.requestOtaInfo();
 
         } catch (RemoteException e) {
             e.printStackTrace();
