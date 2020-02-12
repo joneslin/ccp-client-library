@@ -46,6 +46,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         this.isShadow = isShadow;
         String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
+        // 先清除舊有的ccpservice與shadow安裝檔避免同檔名續傳錯誤
+        task.clearApplicationData();
         task.execute();
     }
 

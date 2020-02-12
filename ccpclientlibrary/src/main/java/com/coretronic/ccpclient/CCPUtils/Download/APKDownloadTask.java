@@ -212,7 +212,7 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                         onError.error(e.getMessage());
 
                     }
-                    Log.e(TAG, "Sleep" + retryPeriod + "milliseconds ...");
+                    Log.d(TAG, "Sleep " + retryPeriod + " milliseconds ...");
                     try {
                         Thread.sleep(retryPeriod);
                     } catch (InterruptedException ex) {
@@ -352,12 +352,10 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
         return dir.delete();
     }
 
-    public boolean isApkExist(String md5Origin) {
-        File folder = new File(localFilePath);
+    public boolean isApkExistAndComplete(String md5Origin) {
         try {
-//            String md5Origin  = "";//original file's md5 checksum
             String filePath   = localFilePath+"/"+fileName; //fill with the real file path name
-            Log.d("isApkExist",filePath);
+            Log.d("isApkExistAndComplete",filePath);
             FileInputStream fis   = new FileInputStream(filePath);
             String md5Checksum    = md5(fis);
             Log.d("MD5",md5Checksum);
