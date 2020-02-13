@@ -24,4 +24,6 @@ interface ICCPAidlInterface {
     String sendFirmwareOtaStatus(String title, String otaStatus, String localVersion, String updateVersion);
 
     void requestOtaInfo();
+
+    void setEnvironment(String enviroment);
 }

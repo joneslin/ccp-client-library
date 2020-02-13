@@ -199,6 +199,11 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                             // response code = 416 is already download.
                             needsRetry = false;
                             downloadInterrupt = false;
+                        } else if(targetSize == 0) {
+                            needsRetry = false;
+                            onError.error("Download target not found");
+                            downloadInterrupt = true;
+                            return null;
                         } else {
                             downloadInterrupt = false;
                             onError.error("ResponseCode: "+response.code());
@@ -212,11 +217,13 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                         onError.error(e.getMessage());
 
                     }
-                    Log.d(TAG, "Sleep " + retryPeriod + " milliseconds ...");
-                    try {
-                        Thread.sleep(retryPeriod);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
+                    if(needsRetry) {
+                        Log.d(TAG, "Sleep " + retryPeriod + " milliseconds ...");
+                        try {
+                            Thread.sleep(retryPeriod);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
             }
@@ -225,76 +232,6 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
         }
         return null;
     }
-//    protected List<File> doInBackground(Void... params) {
-//        long freeSize = storage_free();
-//        Log.d(TAG, "Storage SIZE:" + freeSize);
-//
-//        //當內存小於1G，即清理所有下載的媒體檔
-//        if (freeSize < 1000000000) {
-//            clearApplicationData();
-//            Log.d(TAG, "Clear All Media Data");
-//        }
-//
-//        File folder = new File(localFilePath);
-//        if (folder.isDirectory()) {
-//        } else {
-//            folder.mkdirs();
-//        }
-//
-//        OkHttpClient httpClient = RouterAzure.getUnsafeOkHttpClient();
-//        Call call = httpClient.newCall(new Request.Builder().url(fileUrl).get().build());
-//        try {
-//            Response response = call.execute();
-//            if (response.code() == 200) {
-//                Log.d(TAG, "200 OK");
-//                InputStream inputStream = null;
-//                try {
-//                    inputStream = response.body().byteStream();
-//                    byte[] buff = new byte[1024 * 4];
-//                    long downloaded = 0;
-//                    long target = response.body().contentLength();
-//
-//                    File compressedFile = new File(localFilePath, fileName);
-//                    OutputStream outputStream = new FileOutputStream(compressedFile);
-//                    publishProgress(0L, target);
-//                    while (true) {
-//                        int readed = inputStream.read(buff);
-//                        if (readed == -1) {
-//                            break;
-//                        }
-//                        // write buff to file
-//                        outputStream.write(buff, 0, readed);
-//                        downloaded += readed;
-//                        publishProgress(downloaded, target);
-//
-//                        if (isCancelled()) {
-//                            downloadInterrupt = true;
-//                            break;
-////                                    return null; //中途取消
-//                        }
-//                    }
-//                    outputStream.close();
-//                } catch (IOException ignore) {
-//                    Log.d(TAG, "IOException");
-//                    downloadInterrupt = true;
-//                    return null;  //例外處理
-//                } finally {
-//                    if (inputStream != null) {
-//                        inputStream.close();
-//                    }
-//                }
-//            } else {
-//                Log.d(TAG, "no connection");
-//                downloadInterrupt = true;
-//                return null;  //無法連線
-//            }
-//        } catch (IOException e) {
-//            downloadInterrupt = true;
-//            e.printStackTrace();
-//            return null;
-//        }
-//        return null;
-//    }
 
     @Override
     protected void onProgressUpdate(Long... values) {
