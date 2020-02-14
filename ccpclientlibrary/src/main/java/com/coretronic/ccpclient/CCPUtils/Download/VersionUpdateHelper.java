@@ -132,7 +132,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
             InputStream is = context.getContentResolver().openInputStream(fileUri);
             SilentInstall.startInstall(context, filePath);
         } catch (IOException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e(TAG,e.getMessage());
         }
 
     }
@@ -140,7 +141,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     @Override
     public void cancell() {
         Log.d(TAG, "cancell: cancell");
-        Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
         //CCP service need to retry.
         if (isCCPService){
             retryToDownload();

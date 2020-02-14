@@ -1,17 +1,16 @@
 package com.coretronic.ccpclient.CCPUtils.Download;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpservice.ICCPAidlInterface;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,7 +132,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
             InputStream is = context.getContentResolver().openInputStream(fileUri);
             SilentInstall.startInstall(context, filePath);
         } catch (IOException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e(TAG,e.getMessage());
         }
 
     }
@@ -141,7 +141,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     @Override
     public void cancell() {
         Log.d(TAG, "cancell: cancell");
-        Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
         //CCP service need to retry.
         if (isCCPService){
             retryToDownload();
