@@ -26,6 +26,4 @@ interface ICCPAidlInterface {
     void requestOtaInfo();
 
     void setEnvironment(String enviroment);
-
-    void setLogUploadFolder(String filePath);
 }
