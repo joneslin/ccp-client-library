@@ -6,6 +6,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.widget.Toast;
 import com.coretronic.ccpclient.CCPUtils.Detector.CCPDetector;
+import com.coretronic.ccpclient.CCPUtils.Download.PackageHelper;
 import com.coretronic.ccpclient.CCPUtils.Interface.CCPAidlInterface;
 import com.coretronic.ccpservice.ICCPAidlInterface;
 
@@ -34,6 +35,14 @@ public class CCPStarter {
     }
 
     public void start(){
+        String currentCCPserviceVersion = PackageHelper.getVersionName(Config.ccpservicePackageName, context);
+        boolean ccpserciceNeedUpdate=false;
+        if(!currentCCPserviceVersion.equals(Config.REQUIRE_CCPSERVICE_VERSION)) {
+            // CCP service版本不符
+            ccpserciceNeedUpdate = true;
+            Toast.makeText(context.getApplicationContext(),	"CCP Service need update!!", Toast.LENGTH_SHORT).show();
+        }
+
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -50,6 +59,6 @@ public class CCPStarter {
 
         // CCP Detector. 偵測ccp若存在則啟動，cpp不存在則下載並啟動，也一併啟動bind service。
         CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true);
-        ccpDetector.startCCPService();
+        ccpDetector.startCCPService(ccpserciceNeedUpdate);
     }
 }

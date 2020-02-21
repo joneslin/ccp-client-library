@@ -13,6 +13,6 @@ oneway interface ICCPAidlCallback {
 
     void getOtaInfo(String latestOTAByDeviceStr);
 
-    void ccpServiceValidated();
+    void ccpServiceValidated(String guid, String secretKey);
 
 }

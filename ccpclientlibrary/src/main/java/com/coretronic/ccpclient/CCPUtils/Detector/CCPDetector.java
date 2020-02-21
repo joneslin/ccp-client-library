@@ -29,12 +29,12 @@ public class CCPDetector {
         this.bindCCPService = bindCCPService;
     }
 
-    public void startCCPService(){
+    public void startCCPService(boolean ccpserciceNeedUpdate){
         boolean isPackageExist = isPackageExist(context, Config.ccpservicePackageName);
         Log.d(TAG, "*****isCCP_ServiceExist: " + isPackageExist);
 
         ///CCP app是否存在.
-        if (isPackageExist){
+        if (isPackageExist && !ccpserciceNeedUpdate){
             Log.d(TAG, "*****starting CCP_Service");
             Intent intent = new Intent(Config.ccpserviceStartAction);
             intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
