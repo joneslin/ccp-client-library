@@ -26,4 +26,6 @@ interface ICCPAidlInterface {
     void requestOtaInfo();
 
     void setEnvironment(String enviroment);
+
+    void reportSystemInfo(String firmwareVersion);
 }

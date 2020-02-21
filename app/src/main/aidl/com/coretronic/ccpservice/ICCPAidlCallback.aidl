@@ -12,4 +12,7 @@ oneway interface ICCPAidlCallback {
     void ccpServiceReady(String messageCode);
 
     void getOtaInfo(String latestOTAByDeviceStr);
+
+    void ccpServiceValidated();
+
 }

@@ -125,6 +125,14 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                     }
                 }
             }
+
+            @Override
+            public void ccpServiceValidated() throws RemoteException {
+                Log.d("AIDL Callback", "CCP Service Validated") ;
+                // TODO: 回傳firmware版本來更新系統資訊
+                String firmwareVersoon = "unknown";
+                iccpAidlInterface.reportSystemInfo(firmwareVersoon);
+            }
         };
 
         // TODO 5. 註冊AIDL CallBack.
