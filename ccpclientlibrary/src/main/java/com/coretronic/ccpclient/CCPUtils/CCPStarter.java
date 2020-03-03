@@ -40,7 +40,7 @@ public class CCPStarter {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 iccpAidlInterface = ICCPAidlInterface.Stub.asInterface(iBinder);
-                Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
                 ccpAidlInterface.alreadyConnected();
             }
 
