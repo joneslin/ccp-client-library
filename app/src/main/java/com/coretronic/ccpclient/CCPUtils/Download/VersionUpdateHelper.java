@@ -3,6 +3,7 @@ package com.coretronic.ccpclient.CCPUtils.Download;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
@@ -49,7 +50,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         task.setRetryPeriod(60000);
         // 先清除舊有的ccpservice與shadow安裝檔避免同檔名續傳錯誤
         task.clearApplicationData();
-        task.execute();
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     //安裝失敗會retry，還有下載失敗會retry，retry的時間在config中設定。
