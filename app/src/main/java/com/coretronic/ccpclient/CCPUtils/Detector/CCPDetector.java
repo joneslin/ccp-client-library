@@ -21,12 +21,14 @@ public class CCPDetector {
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
     boolean bindCCPService = false;
+    String ccpserviceVer = "";
 
-    public CCPDetector(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService) {
+    public CCPDetector(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService, String ccpserviceVer) {
         this.context = context;
         this.iccpAidlInterface = iccpAidlInterface;
         this.serviceConnection = serviceConnection;
         this.bindCCPService = bindCCPService;
+        this.ccpserviceVer = ccpserviceVer;
     }
 
     public void startCCPService(boolean ccpserciceNeedUpdate){
@@ -57,7 +59,7 @@ public class CCPDetector {
             //download apk and start.
             Log.d(TAG, "*****need to Download CCP APK");
             VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context, iccpAidlInterface, serviceConnection, bindCCPService);
-            versionUpdateHelper.downloadManager("ccpservice.apk", Config.ccpserviceApkDownloadPath, "", true, false);
+            versionUpdateHelper.downloadManager("ccpservice.apk", Config.getCcpserviceApkDownloadPath(ccpserviceVer), "", true, false);
         }
 
         //Shadow 是否存在，不存下則下載，存在則打開。

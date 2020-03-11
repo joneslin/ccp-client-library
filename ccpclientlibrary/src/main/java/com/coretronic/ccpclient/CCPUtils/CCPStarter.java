@@ -35,9 +35,13 @@ public class CCPStarter {
     }
 
     public void start(){
+        start(Config.RECOMMENDED_CCPSERVICE_VERSION);
+    }
+
+    public void start(String targetVer){
         String currentCCPserviceVersion = PackageHelper.getVersionName(Config.ccpservicePackageName, context);
         boolean ccpserciceNeedUpdate=false;
-        if(!currentCCPserviceVersion.equals(Config.REQUIRE_CCPSERVICE_VERSION)) {
+        if(!currentCCPserviceVersion.equals(targetVer)) {
             // CCP service版本不符
             ccpserciceNeedUpdate = true;
             Toast.makeText(context.getApplicationContext(),	"CCP Service need update!!", Toast.LENGTH_SHORT).show();
@@ -58,7 +62,7 @@ public class CCPStarter {
         };
 
         // CCP Detector. 偵測ccp若存在則啟動，cpp不存在則下載並啟動，也一併啟動bind service。
-        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true);
+        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true, targetVer);
         ccpDetector.startCCPService(ccpserciceNeedUpdate);
     }
 }

@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                 // TODO 4. 重要：傳註冊資訊，需要傳送兩個值，分別為DeviceID(由各單位自行定義) 與 TenantID(範例中為optoma TenantID)。
 //                iccpAidlInterface.sendRegisterInfo("Optoma-"+android.os.Build.SERIAL, "5b2e092f-0751-4480-8154-9dece5398ddf");
 //                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"-1", "5b2e092f-0751-4480-8154-9dece5398ddf");
-                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"-2", "00000000-0000-0000-0000-000000000002");
+                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"-2", "00000000-0000-0000-0000-000000000002","");
             }
 
             @Override
