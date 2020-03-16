@@ -59,7 +59,7 @@ public class SilentInstall {
             }
             Log.d(TAG, "silent install success message: " + successMsg);
             // 如果執行結果中包含 Failure 字樣就認為是操作失敗，否則就認為安裝成功
-            if (!(errorMsg.toString().contains("Failure") || successMsg.toString().contains("Failure"))) {
+            if (!(errorMsg.toString().contains("Failure") || successMsg.toString().contains("Failure") || errorMsg.toString().contains("Killed"))) {
                 result = true;
             }
         } catch (Exception e) {
