@@ -7,8 +7,8 @@ public class Config {
     public static String shadowPackageName = "com.coretronic.shadow";
     public static String apkDownloadSavePath = "/download/";
     public static String ccpserviceStartAction = "coretronic.intent.action.iot.service.START_BY_SHADOW";
-    public static String RECOMMENDED_CCPSERVICE_VERSION = "1.10";
-//    public static String ccpserviceApkDownloadPath = "https://ftp.coretronic.com/dl/coretronicnote/ccpservice/ccpservice1.9.apk";
+    public static String RECOMMENDED_CCPSERVICE_VERSION = "1.11";
+    //    public static String ccpserviceApkDownloadPath = "https://ftp.coretronic.com/dl/coretronicnote/ccpservice/ccpservice1.9.apk";
     public static String getCcpserviceApkDownloadPath(String ver) {
         return "https://ftp.coretronic.com/dl/coretronicnote/ccpservice/ccpservice"+ver+".apk";
     }

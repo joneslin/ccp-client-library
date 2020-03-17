@@ -7,7 +7,7 @@ oneway interface ICCPAidlCallback {
 
     void serviceInt(int value);
 
-    void serviceString(String value);
+    void serviceString(String value, String msgId);
 
     void ccpServiceReady(String messageCode);
 

@@ -11,7 +11,7 @@ interface ICCPAidlInterface {
 
     void unregisterCallback(ICCPAidlCallback cb);
 
-    String sendString(String data);
+    String sendString(String data, String msgId);
 
     String sendInt(int data);
 
