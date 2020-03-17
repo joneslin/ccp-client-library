@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             }
 
             @Override
-            public void serviceString(String value) throws RemoteException {
-                Log.d("AIDL Callback", "CCP Service - Get String: " + value);
+            public void serviceString(String value, String msgId) throws RemoteException {
+                Log.d("AIDL Callback", "CCP Service - Get String: " + value + "MessageID: " + msgId);
             }
 
             @Override
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
         //TODO 6.送資料到ccp agent service example.
         try {
             // 傳String至ccp agent Service.
-            String sendStringToService = iccpAidlInterface.sendString("test123");
+            String sendStringToService = iccpAidlInterface.sendString("test123","");
 
             // 傳Integer至ccp agent Service.
             String sendIntToService = iccpAidlInterface.sendInt(1000);
