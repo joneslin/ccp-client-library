@@ -81,7 +81,7 @@ public class CCPStarter {
         };
 
         // CCP Detector. 偵測ccp若存在則啟動，cpp不存在則下載並啟動，也一併啟動bind service。
-        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true, targetVer);
+        CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true, targetVersionName);
         ccpDetector.startCCPService(ccpserciceNeedUpdate);
     }
 }
