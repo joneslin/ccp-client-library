@@ -6,10 +6,11 @@ import java.util.List;
 
 public class LatestOTAByDeviceGson {
 
+
     /**
-     * product : {"gtin":"string","name":"string","description":"string","hardwareId":0,"tenantId":0,"private":true,"creationTime":"2020-02-10T06:26:32.612Z","creator":"string","modificationTime":"2020-02-10T06:26:32.612Z","modifier":"string","deletionTime":"2020-02-10T06:26:32.612Z","deleter":"string","isDeleted":true,"id":0}
+     * product : {"gtin":"string","guid":"3fa85f64-5717-4562-b3fc-2c963f66afa6","name":"string","description":"string","hardwareId":0,"tenantId":0,"private":true,"creationTime":"2020-03-31T02:26:55.296Z","creator":"string","modificationTime":"2020-03-31T02:26:55.296Z","modifier":"string","deletionTime":"2020-03-31T02:26:55.296Z","deleter":"string","isDeleted":true,"id":0}
      * firmware : {"version":"string","title":"string","description":"string","name":"string","uri":"string","checksum":"string","packageSize":0,"fingerprint":"string"}
-     * softwares : [{"version":"string","title":"string","description":"string","name":"string","uri":"string","checksum":"string","packageSize":0}]
+     * softwares : [{"version":"string","title":"string","description":"string","package":"string","packageFileName":"string","uri":"string","checksum":"string","packageSize":0}]
      */
 
     private ProductBean product;
@@ -43,22 +44,24 @@ public class LatestOTAByDeviceGson {
     public static class ProductBean {
         /**
          * gtin : string
+         * guid : 3fa85f64-5717-4562-b3fc-2c963f66afa6
          * name : string
          * description : string
          * hardwareId : 0
          * tenantId : 0
          * private : true
-         * creationTime : 2020-02-10T06:26:32.612Z
+         * creationTime : 2020-03-31T02:26:55.296Z
          * creator : string
-         * modificationTime : 2020-02-10T06:26:32.612Z
+         * modificationTime : 2020-03-31T02:26:55.296Z
          * modifier : string
-         * deletionTime : 2020-02-10T06:26:32.612Z
+         * deletionTime : 2020-03-31T02:26:55.296Z
          * deleter : string
          * isDeleted : true
          * id : 0
          */
 
         private String gtin;
+        private String guid;
         private String name;
         private String description;
         private int hardwareId;
@@ -80,6 +83,14 @@ public class LatestOTAByDeviceGson {
 
         public void setGtin(String gtin) {
             this.gtin = gtin;
+        }
+
+        public String getGuid() {
+            return guid;
+        }
+
+        public void setGuid(String guid) {
+            this.guid = guid;
         }
 
         public String getName() {
@@ -278,7 +289,8 @@ public class LatestOTAByDeviceGson {
          * version : string
          * title : string
          * description : string
-         * name : string
+         * package : string
+         * packageFileName : string
          * uri : string
          * checksum : string
          * packageSize : 0
@@ -287,7 +299,9 @@ public class LatestOTAByDeviceGson {
         private String version;
         private String title;
         private String description;
-        private String name;
+        @SerializedName("package")
+        private String packageName;
+        private String packageFileName;
         private String uri;
         private String checksum;
         private int packageSize;
@@ -316,12 +330,20 @@ public class LatestOTAByDeviceGson {
             this.description = description;
         }
 
-        public String getName() {
-            return name;
+        public String getPackageName() {
+            return packageName;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setPackageName(String packageName) {
+            this.packageName = packageName;
+        }
+
+        public String getPackageFileName() {
+            return packageFileName;
+        }
+
+        public void setPackageFileName(String packageFileName) {
+            this.packageFileName = packageFileName;
         }
 
         public String getUri() {

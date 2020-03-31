@@ -58,7 +58,7 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
         }
 
         String savePath = "/sdcard/Download/";
-        task = new APKDownloadTask(context, this, this, this, this,savePath, software.getName(), software.getUri());
+        task = new APKDownloadTask(context, this, this, this, this,savePath, software.getPackageName(), software.getUri());
 //        if(!task.isApkExist(currentSoftware.getChecksum()))
         task.execute();
     }

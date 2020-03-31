@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
 
                 for (LatestOTAByDeviceGson.SoftwaresBean software : latestOTAByDeviceGson.getSoftwares()) {
                     Log.d("OTA info", "Software title: " + software.getTitle());
-                    Log.d("OTA info", "Software name: " + software.getName());
+                    Log.d("OTA info", "Software packageName: " + software.getPackageName());
                     Log.d("OTA info", "Software version: " + software.getVersion());
                     Log.d("OTA info", "Software uri: " + software.getUri());
 
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                         Log.d("OTA info",packageName + localPackageVersion + "已經是最新版本");
                     } else {
                         // TODO: 下載並安裝
-                        Log.d("OTA info",software.getName() + " ver." + localPackageVersion+" --> ver." + updatePackageVersion);
+                        Log.d("OTA info",software.getPackageName() + " ver." + localPackageVersion+" --> ver." + updatePackageVersion);
                         OtaHelperExample otaHelper = new OtaHelperExample(getBaseContext());
                         otaHelper.startUpdateSoftware(iccpAidlInterface, software, localPackageVersion);
                     }
