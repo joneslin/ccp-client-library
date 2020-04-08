@@ -6,6 +6,7 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.coretronic.ccpclient.CCPUtils.Config;
@@ -99,7 +100,11 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         if (isCCPService) {
             // Silent Install
             if (SilentInstall.startInstall(filePath)) {
-                Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
+                } catch (WindowManager.BadTokenException e) {
+                    e.printStackTrace();
+                }
 
                 // Start CCP Service.
                 Intent intent = new Intent(Config.ccpserviceStartAction);
@@ -119,20 +124,31 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                     }
                 }
             } else {
-                Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+                } catch (WindowManager.BadTokenException e){
+                    e.printStackTrace();
+                }
                 //shadow service need to retry.
                 retryToDownload();
             }
         }
         else if(isShadow) {
             if (SilentInstall.startInstall(filePath)) {
-                Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
-
+                try {
+                    Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
+                } catch (WindowManager.BadTokenException e){
+                    e.printStackTrace();
+                }
                 // Start CCP Service.
                 Intent intent = new Intent(Config.shadowStartAction);
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             } else {
-                Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
+                } catch (WindowManager.BadTokenException e){
+                    e.printStackTrace();
+                }
                 //shadow service need to retry.
                 retryToDownload();
             }
@@ -169,7 +185,11 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     @Override
     public void cancel() {
         Log.d(TAG, "cancel: cancel");
-        Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+        } catch (WindowManager.BadTokenException e){
+            e.printStackTrace();
+        }
 
         //CCP service need to retry.
         if (isCCPService){
@@ -199,7 +219,9 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     public void progress(Long... values) {
         float currentFloat = (values[0].floatValue() / values[1].floatValue()) * 100;
         int currentPercent = (int) currentFloat;
-        Log.d(TAG, "progress: progress: " + currentPercent + "%");
+        if(currentPercent>pastPercent) {
+            Log.d(TAG, "progress: progress: " + currentPercent + "%");
+        }
         if (pastPercent >=100){
             pastPercent=0;
         }

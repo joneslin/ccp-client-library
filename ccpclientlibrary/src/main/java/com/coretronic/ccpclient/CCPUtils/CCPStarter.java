@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.view.WindowManager;
 import android.widget.Switch;
 import android.widget.Toast;
 import com.coretronic.ccpclient.CCPUtils.Detector.CCPDetector;
@@ -63,14 +64,22 @@ public class CCPStarter {
         if(!currentCCPserviceVersion.equals(targetVersionName)) {
             // CCP service版本不符
             ccpserciceNeedUpdate = true;
-            Toast.makeText(context.getApplicationContext(),	"CCP Service need update!!", Toast.LENGTH_SHORT).show();
+            try {
+                Toast.makeText(context.getApplicationContext(),	"CCP Service need update!!", Toast.LENGTH_SHORT).show();
+            } catch (WindowManager.BadTokenException e) {
+                e.printStackTrace();
+            }
         }
 
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 iccpAidlInterface = ICCPAidlInterface.Stub.asInterface(iBinder);
-                Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
+                } catch (WindowManager.BadTokenException e) {
+                    e.printStackTrace();
+                }
                 ccpAidlInterface.alreadyConnected();
             }
 

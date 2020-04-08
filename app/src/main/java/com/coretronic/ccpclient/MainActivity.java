@@ -3,10 +3,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.nfc.Tag;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.coretronic.ccpclient.CCPUtils.Download.PackageHelper;
@@ -205,7 +207,11 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {
                 String packageName = intent.getDataString().replace("package:","");
                 Log.e("MainActivity", "安装了:" + packageName);
-                Toast.makeText(context, packageName + "下載&安裝成功", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(context, packageName + "下載&安裝成功", Toast.LENGTH_SHORT).show();
+                } catch (WindowManager.BadTokenException e){
+                    e.printStackTrace();
+                }
                 try {
                     iccpAidlInterface.sendOtaStatus(packageName,"current", PackageHelper.getVersionName(packageName, context), "");
                 } catch (RemoteException e) {
