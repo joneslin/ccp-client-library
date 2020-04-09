@@ -175,6 +175,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         task = null;
         String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
+        task.deleteExistApk();
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
