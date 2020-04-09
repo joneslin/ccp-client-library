@@ -50,7 +50,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
         task.setRetryPeriod(60000);
         // 先清除舊有的ccpservice與shadow安裝檔避免同檔名續傳錯誤
-//        task.clearApplicationData();
+        task.deleteExistApk();
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
@@ -127,6 +127,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                     // Start CCP Service.
                     Intent intent = new Intent(Config.shadowStartAction);
                     intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                    context.sendBroadcast(intent);
                 } else {
                     Log.e(TAG,"Shadow下載失敗");
 //                try {

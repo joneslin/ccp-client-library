@@ -289,6 +289,12 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
         return dir.delete();
     }
 
+    public void deleteExistApk() {
+        if(deleteDir(new File(localFilePath,fileName))){
+            Log.d(TAG,"DELETE "+localFilePath + "/" + fileName);
+        }
+    }
+
     public boolean isApkExistAndComplete(String md5Origin) {
         try {
             String filePath   = localFilePath+"/"+fileName; //fill with the real file path name
