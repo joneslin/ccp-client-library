@@ -50,138 +50,99 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
         task.setRetryPeriod(60000);
         // 先清除舊有的ccpservice與shadow安裝檔避免同檔名續傳錯誤
-        task.clearApplicationData();
+//        task.clearApplicationData();
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     //安裝失敗會retry，還有下載失敗會retry，retry的時間在config中設定。
     @Override
     public void finish(String apkFilePath) {
-        File rootFile = new File(context.getCacheDir(), "/download");
-
-        Log.d(TAG, "Complete: complete " + saveFileName);
-        Log.d(TAG, "folder: " + rootFile);
-
-        // 變更資料夾&檔案存取權限 700=rwx-權限全開
-        String filePath = rootFile.getAbsolutePath() +"/"+ saveFileName;
-        String folderPath = rootFile.getAbsolutePath();
         try {
-            Log.d(TAG, "chmod to 777....");
-            Log.d(TAG, "chmod path: " + filePath);
-            Runtime.getRuntime().exec(new String[]{"chmod", "777", filePath});
-            Runtime.getRuntime().exec(new String[]{"chmod", "777", folderPath});
+            Config.installerLock.lock();
+            Log.d("installerLock","lock");
+            File rootFile = new File(context.getCacheDir(), "/download");
+
+            Log.d(TAG, "Complete: complete " + saveFileName);
+            Log.d(TAG, "folder: " + rootFile);
+
+            // 變更資料夾&檔案存取權限 700=rwx-權限全開
+            String filePath = rootFile.getAbsolutePath() +"/"+ saveFileName;
+            String folderPath = rootFile.getAbsolutePath();
+            try {
+                Log.d(TAG, "chmod to 777....");
+                Log.d(TAG, "chmod path: " + filePath);
+                Runtime.getRuntime().exec(new String[]{"chmod", "777", filePath});
+                Runtime.getRuntime().exec(new String[]{"chmod", "777", folderPath});
 
 
-            Runtime.getRuntime().exec(new String[]{"su", "-c", "mount -o remount rw /system"} );
-            Runtime.getRuntime().exec(new String[]{"chmod", "777", "/system/priv-app"});
-//            try {
-//                Process process = Runtime.getRuntime().exec("su");
-//                DataOutputStream outputStream = new DataOutputStream(process.getOutputStream());
-//                outputStream.writeBytes("mount -o rw,remount -t auto /system"+ "\n");
-//                outputStream.flush();
-//                outputStream.writeBytes("chmod 777 /system/priv-app" + "\n");
-//                outputStream.flush();
-//                outputStream.close();
-//                process.destroy();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-
-//            Process child = Runtime.getRuntime().exec(new String[] { "su"});
-//            DataOutputStream stdin = new DataOutputStream(child.getOutputStream());
-//            stdin.writeBytes("mount -o rw,remount -t auto /system");
-//            stdin.writeBytes("chmod 777 /system/priv-app");
-//            Runtime.getRuntime().exec(new String[]{"su"});
-//            Runtime.getRuntime().exec(new String[]{"mount -o rw,remount -t auto /system"});
-//            Runtime.getRuntime().exec(new String[]{"chmod", "777", "/system/priv-app"});
-        } catch (IOException e) {}
+                Runtime.getRuntime().exec(new String[]{"su", "-c", "mount -o remount rw /system"} );
+                Runtime.getRuntime().exec(new String[]{"chmod", "777", "/system/priv-app"});
+            } catch (IOException e) {}
 
 
-        if (isCCPService) {
-            // Silent Install
-            if (SilentInstall.startInstall(filePath)) {
+            if (isCCPService) {
+                // Silent Install
+                if (SilentInstall.startInstall(filePath)) {
 //                try {
 //                    Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
 //                } catch (WindowManager.BadTokenException e) {
 //                    e.printStackTrace();
 //                }
 
-                // Start CCP Service.
-                Intent intent = new Intent(Config.ccpserviceStartAction);
-                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                context.sendBroadcast(intent);
+                    // Start CCP Service.
+                    Intent intent = new Intent(Config.ccpserviceStartAction);
+                    intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                    context.sendBroadcast(intent);
 
-                if (bindCCPService) {
-                    // Bind AIDL.
-                    if (iccpAidlInterface == null) {
-                        Intent it = new Intent();
-                        //service action.
-                        it.setAction("coretronic.intent.action.aidl");
-                        //service package name.
-                        it.setPackage("com.coretronic.ccpservice");
-                        context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
-                        Config.isBindService = true;
+                    if (bindCCPService) {
+                        // Bind AIDL.
+                        if (iccpAidlInterface == null) {
+                            Intent it = new Intent();
+                            //service action.
+                            it.setAction("coretronic.intent.action.aidl");
+                            //service package name.
+                            it.setPackage("com.coretronic.ccpservice");
+                            context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+                            Config.isBindService = true;
+                        }
                     }
-                }
-            } else {
-                Log.e(TAG,"CCP Service下載失敗");
+                } else {
+                    Log.e(TAG,"CCP Service下載失敗");
 //                try {
 //                    Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
 //                } catch (WindowManager.BadTokenException e){
 //                    e.printStackTrace();
 //                }
-                //shadow service need to retry.
-                retryToDownload();
+                    //shadow service need to retry.
+                    retryToDownload();
+                }
             }
-        }
-        else if(isShadow) {
-            if (SilentInstall.startInstall(filePath)) {
+            else if(isShadow) {
+                if (SilentInstall.startInstall(filePath)) {
 //                try {
 //                    Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
 //                } catch (WindowManager.BadTokenException e){
 //                    e.printStackTrace();
 //                }
-                // Start CCP Service.
-                Intent intent = new Intent(Config.shadowStartAction);
-                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            } else {
-                Log.e(TAG,"Shadow下載失敗");
+                    // Start CCP Service.
+                    Intent intent = new Intent(Config.shadowStartAction);
+                    intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                } else {
+                    Log.e(TAG,"Shadow下載失敗");
 //                try {
 //                    Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
 //                } catch (WindowManager.BadTokenException e){
 //                    e.printStackTrace();
 //                }
-                //shadow service need to retry.
-                retryToDownload();
+                    //shadow service need to retry.
+                    retryToDownload();
+                }
             }
+        } finally {
+            Config.installerLock.unlock();
+            Log.d("installerLock","unlock");
         }
-//        String[] children = rootFile.list();
-//        for (int i = 0; i < children.length; i++) {
-//            Log.d(TAG, children[i]);
-//        }
-//        Intent i = new Intent(Intent.ACTION_VIEW);
-//        File apkFile = new File(filePath);
-//        if (md5 == null || md5.equals("") || md5.equals(Md5ChecksumHelper.calculateMD5(apkFile))) {
-//            Uri uri;
-//            //0714 新增Android 7.0版本判斷（sdk 24）
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                Log.d(TAG, "FileProvider: " + "RK3399");
-//                uri = FileProvider.getUriForFile(context, "com.coretronic.iothubservice.fileprovider", apkFile);
-//                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//            }else{
-//                Log.d(TAG, "FileProvider: " + "Others");
-//                uri = Uri.fromFile(apkFile);
-//            }
-//
-//            i.setDataAndType(uri, "application/vnd.android.package-archive");
-//            Log.d(TAG, "uri: " + uri);
-//            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            i.putExtra(Intent.EXTRA_RETURN_RESULT, true);
-//            context.startActivity(i);
-//        } else {
-//            Log.d(TAG, "檔案驗證錯誤，請檢查檔案後重試");
-//            Toast.makeText(context, "檔案驗證錯誤，請檢查檔案後重試", Toast.LENGTH_SHORT).show();
-//        }
+
     }
 
     @Override
@@ -213,7 +174,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         task = null;
         String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
-        task.execute();
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private int pastPercent=0;
@@ -223,7 +184,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         int currentPercent = (int) currentFloat;
         if(currentPercent>pastPercent) {
             pastPercent = currentPercent;
-            Log.d(TAG, "progress: progress: " + currentPercent + "%");
+            Log.d(TAG, "progress: "+saveFileName+" " + currentPercent + "%");
         }
         if (pastPercent >=100){
             pastPercent=0;

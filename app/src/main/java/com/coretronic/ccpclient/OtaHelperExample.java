@@ -1,6 +1,7 @@
 package com.coretronic.ccpclient;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -40,7 +41,7 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
         String savePath = "/sdcard/Download/";
         task = new APKDownloadTask(context, this, this, this, this,savePath, firmware.getName(), firmware.getUri());
 //        if(!task.isApkExist(currentSoftware.getChecksum()))
-            task.execute();
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public void startUpdateSoftware(ICCPAidlInterface iccpAidlInterface, SoftwaresBean software, String localVersion)
@@ -60,7 +61,7 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
         String savePath = "/sdcard/Download/";
         task = new APKDownloadTask(context, this, this, this, this,savePath, software.getPackageName(), software.getUri());
 //        if(!task.isApkExist(currentSoftware.getChecksum()))
-        task.execute();
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override

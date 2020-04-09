@@ -1,4 +1,8 @@
 package com.coretronic.ccpclient.CCPUtils;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Created by Jones Lin on 2019-08-08.
  */
@@ -16,6 +20,7 @@ public class Config {
     public static String shadowApkDownloadPath = "https://ftp.coretronic.com/dl/coretronicnote/shadow/shadow.apk";
     public static Long ccpserviceApkDownloadRetryMillisecond = 6 * 1000L;
     public static boolean isBindService = false;
+    public static Lock installerLock = new ReentrantLock();
 
     public enum Environment {
         Production, Development, POC;
