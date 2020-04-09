@@ -64,22 +64,22 @@ public class CCPStarter {
         if(!currentCCPserviceVersion.equals(targetVersionName)) {
             // CCP service版本不符
             ccpserciceNeedUpdate = true;
-            try {
-                Toast.makeText(context.getApplicationContext(),	"CCP Service need update!!", Toast.LENGTH_SHORT).show();
-            } catch (WindowManager.BadTokenException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Toast.makeText(context.getApplicationContext(),	"CCP Service need update!!", Toast.LENGTH_SHORT).show();
+//            } catch (WindowManager.BadTokenException e) {
+//                e.printStackTrace();
+//            }
         }
 
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 iccpAidlInterface = ICCPAidlInterface.Stub.asInterface(iBinder);
-                try {
-                    Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
-                } catch (WindowManager.BadTokenException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
+//                } catch (WindowManager.BadTokenException e) {
+//                    e.printStackTrace();
+//                }
                 ccpAidlInterface.alreadyConnected();
             }
 

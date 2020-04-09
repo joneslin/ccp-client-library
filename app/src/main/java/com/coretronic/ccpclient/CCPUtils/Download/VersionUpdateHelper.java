@@ -100,11 +100,11 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         if (isCCPService) {
             // Silent Install
             if (SilentInstall.startInstall(filePath)) {
-                try {
-                    Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
-                } catch (WindowManager.BadTokenException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Toast.makeText(context, "CCP Service下載&安裝成功", Toast.LENGTH_SHORT).show();
+//                } catch (WindowManager.BadTokenException e) {
+//                    e.printStackTrace();
+//                }
 
                 // Start CCP Service.
                 Intent intent = new Intent(Config.ccpserviceStartAction);
@@ -124,31 +124,33 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                     }
                 }
             } else {
-                try {
-                    Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
-                } catch (WindowManager.BadTokenException e){
-                    e.printStackTrace();
-                }
+                Log.e(TAG,"CCP Service下載失敗");
+//                try {
+//                    Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+//                } catch (WindowManager.BadTokenException e){
+//                    e.printStackTrace();
+//                }
                 //shadow service need to retry.
                 retryToDownload();
             }
         }
         else if(isShadow) {
             if (SilentInstall.startInstall(filePath)) {
-                try {
-                    Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
-                } catch (WindowManager.BadTokenException e){
-                    e.printStackTrace();
-                }
+//                try {
+//                    Toast.makeText(context, "Shadow下載&安裝成功", Toast.LENGTH_SHORT).show();
+//                } catch (WindowManager.BadTokenException e){
+//                    e.printStackTrace();
+//                }
                 // Start CCP Service.
                 Intent intent = new Intent(Config.shadowStartAction);
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             } else {
-                try {
-                    Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
-                } catch (WindowManager.BadTokenException e){
-                    e.printStackTrace();
-                }
+                Log.e(TAG,"Shadow下載失敗");
+//                try {
+//                    Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
+//                } catch (WindowManager.BadTokenException e){
+//                    e.printStackTrace();
+//                }
                 //shadow service need to retry.
                 retryToDownload();
             }
@@ -184,12 +186,12 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 
     @Override
     public void cancel() {
-        Log.d(TAG, "cancel: cancel");
-        try {
-            Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
-        } catch (WindowManager.BadTokenException e){
-            e.printStackTrace();
-        }
+        Log.e(TAG, "cancel: cancel");
+//        try {
+//            Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
+//        } catch (WindowManager.BadTokenException e){
+//            e.printStackTrace();
+//        }
 
         //CCP service need to retry.
         if (isCCPService){
@@ -220,6 +222,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         float currentFloat = (values[0].floatValue() / values[1].floatValue()) * 100;
         int currentPercent = (int) currentFloat;
         if(currentPercent>pastPercent) {
+            pastPercent = currentPercent;
             Log.d(TAG, "progress: progress: " + currentPercent + "%");
         }
         if (pastPercent >=100){
