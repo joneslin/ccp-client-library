@@ -107,13 +107,14 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                         }
                     }
                 } else {
-                    Log.e(TAG,"CCP Service下載失敗");
+                    Log.e(TAG,"CCP Service安裝失敗");
 //                try {
 //                    Toast.makeText(context, "CCP Service下載失敗", Toast.LENGTH_SHORT).show();
 //                } catch (WindowManager.BadTokenException e){
 //                    e.printStackTrace();
 //                }
                     //shadow service need to retry.
+                    Log.e(TAG, "retryToDownload: CCP Service安裝失敗");
                     retryToDownload();
                 }
             }
@@ -129,13 +130,14 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
                     intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                     context.sendBroadcast(intent);
                 } else {
-                    Log.e(TAG,"Shadow下載失敗");
+                    Log.e(TAG,"Shadow安裝失敗");
 //                try {
 //                    Toast.makeText(context, "Shadow下載失敗", Toast.LENGTH_SHORT).show();
 //                } catch (WindowManager.BadTokenException e){
 //                    e.printStackTrace();
 //                }
                     //shadow service need to retry.
+                    Log.e(TAG, "retryToDownload: Shadow安裝失敗");
                     retryToDownload();
                 }
             }
@@ -157,6 +159,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 
         //CCP service need to retry.
         if (isCCPService){
+            Log.e(TAG, "retryToDownload: cancel");
             retryToDownload();
         }
 
@@ -172,6 +175,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     }
 
     private void newDownloadTask(){
+        Log.e(TAG, "into newDownloadTask");
         task = null;
         String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
         this.saveFileName = saveFileName + System.currentTimeMillis()/1000+".apk";
@@ -187,10 +191,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         int currentPercent = (int) currentFloat;
         if(currentPercent>pastPercent) {
             pastPercent = currentPercent;
-            Log.d(TAG, "progress: "+saveFileName+" " + currentPercent + "%");
-        }
-        if (pastPercent >=100){
-            pastPercent=0;
+            Log.d(TAG, "progress: " + saveFileName + " " + currentPercent + "%");
         }
     }
 
