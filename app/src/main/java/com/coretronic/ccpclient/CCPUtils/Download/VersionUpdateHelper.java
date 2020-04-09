@@ -46,7 +46,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         this.fileUrl = fileUrl;
         this.isCCPService = isCCPService;
         this.isShadow = isShadow;
-        String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
+        String savePath = Config.apkDownloadSavePath;
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
         task.setRetryPeriod(60000);
         // 先清除舊有的ccpservice與shadow安裝檔避免同檔名續傳錯誤
@@ -177,7 +177,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     private void newDownloadTask(){
         Log.e(TAG, "into newDownloadTask");
         task = null;
-        String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
+        String savePath = Config.apkDownloadSavePath;
         this.saveFileName = saveFileName + System.currentTimeMillis()/1000+".apk";
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
         task.deleteExistApk();
