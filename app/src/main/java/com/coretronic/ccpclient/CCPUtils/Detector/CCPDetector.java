@@ -59,7 +59,7 @@ public class CCPDetector {
             //download apk and start.
             Log.d(TAG, "*****need to Download CCP APK");
             VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context, iccpAidlInterface, serviceConnection, bindCCPService);
-            versionUpdateHelper.downloadManager("ccpservice.apk", Config.getCcpserviceApkDownloadPath(ccpserviceVer), "", true, false);
+            versionUpdateHelper.downloadManager("ccpservice", Config.getCcpserviceApkDownloadPath(ccpserviceVer), "", true, false);
         }
 
         //Shadow 是否存在，不存下則下載，存在則打開。
@@ -73,7 +73,7 @@ public class CCPDetector {
             //download apk and start.
             Log.d(TAG, "*****need to Download Shadow APK");
             VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context);
-            versionUpdateHelper.downloadManager("shadow.apk", Config.shadowApkDownloadPath, "", false, true);
+            versionUpdateHelper.downloadManager("shadow", Config.shadowApkDownloadPath, "", false, true);
         }
 
     }
