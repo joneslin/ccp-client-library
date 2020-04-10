@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Config {
     public static String ccpservicePackageName = "com.coretronic.ccpservice";
     public static String shadowPackageName = "com.coretronic.shadow";
-    public static String apkDownloadSavePath = "sdcard/download/";
+    public static String apkDownloadSavePath = "/download/";
     public static String ccpserviceStartAction = "coretronic.intent.action.iot.service.START_BY_SHADOW";
     public static String RECOMMENDED_CCPSERVICE_VERSION = "1.16";
     //    public static String ccpserviceApkDownloadPath = "https://ftp.coretronic.com/dl/coretronicnote/ccpservice/ccpservice1.9.apk";
