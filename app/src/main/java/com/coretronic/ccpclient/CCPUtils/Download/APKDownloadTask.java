@@ -157,7 +157,6 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
 
                             Log.d(TAG, fileName + " Download ok");
                             needsRetry = false;
-                            break;
                         }
                         // **** if response is not equal to 206 (can't support continue download), the response will return 200 when internet is ok. ****
                         else if (response.code() == 200 && targetSize != 0) {
