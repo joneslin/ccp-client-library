@@ -113,6 +113,7 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                 Log.d(TAG, fileName + ": already download and file size is right");
 
             } else {
+                while (needsRetry) {
                     try {
                         Log.d(TAG, "Start downloading");
                         Call call = httpClient.newCall(new Request.Builder().
@@ -180,6 +181,15 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                         onError.error(e.getMessage());
 
                     }
+//                    if(needsRetry) {
+//                        Log.d(TAG, "Sleep " + retryPeriod + " milliseconds ...");
+//                        try {
+//                            Thread.sleep(retryPeriod);
+//                        } catch (InterruptedException ex) {
+//                            ex.printStackTrace();
+//                        }
+//                    }
+                }
             }
         } else {
 //            break;

@@ -113,72 +113,82 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                 Log.d(TAG, fileName + ": already download and file size is right");
 
             } else {
-                try {
-                    Log.d(TAG, "Start downloading");
-                    Call call = httpClient.newCall(new Request.Builder().
-                            header("Range", "bytes=" + file.length() + "-" + targetSize).  // 續傳專案參數
-                            url(fileUrl).get().build());
+                while (needsRetry) {
+                    try {
+                        Log.d(TAG, "Start downloading");
+                        Call call = httpClient.newCall(new Request.Builder().
+                                header("Range", "bytes=" + file.length() + "-" + targetSize).  // 續傳專案參數
+                                url(fileUrl).get().build());
 
-                    Response response = call.execute();
-                    Log.d(TAG, "ResponseCode: " + response.code());
+                        Response response = call.execute();
+                        Log.d(TAG, "ResponseCode: " + response.code());
 
-                    if (response.isSuccessful() && targetSize != 0) {
-                        Log.d(TAG, "ResponseCode: "+response.code());
-                        InputStream inputStream = response.body().byteStream();
-                        byte[] buff = new byte[1024];
-                        long downloaded = 0;
+                        if (response.isSuccessful() && targetSize != 0) {
+                            Log.d(TAG, "ResponseCode: "+response.code());
+                            InputStream inputStream = response.body().byteStream();
+                            byte[] buff = new byte[1024];
+                            long downloaded = 0;
 
-                        // 4. 開始下載
-                        File compressedFile = new File(localFilePath, fileName);
-                        OutputStream outputStream = new FileOutputStream(compressedFile);
-                        publishProgress(0L, targetSize);
+                            // 4. 開始下載
+                            File compressedFile = new File(localFilePath, fileName);
+                            OutputStream outputStream = new FileOutputStream(compressedFile);
+                            publishProgress(0L, targetSize);
 
-                        while (true) {
-                            int readed = inputStream.read(buff);
-                            if (readed == -1) {
-                                break;
+                            while (true) {
+                                int readed = inputStream.read(buff);
+                                if (readed == -1) {
+                                    break;
+                                }
+                                // write buff to file
+                                outputStream.write(buff, 0, readed);
+                                downloaded += readed;
+                                publishProgress(downloaded, targetSize);
+
+                                if (isCancelled()) {
+                                    Log.d(TAG, "TaskDownload:" + "中途取消");
+                                    downloadInterrupt = true;
+                                    return null; //中途取消
+                                }
                             }
-                            // write buff to file
-                            outputStream.write(buff, 0, readed);
-                            downloaded += readed;
-                            publishProgress(downloaded, targetSize);
-
-                            if (isCancelled()) {
-                                Log.d(TAG, "TaskDownload:" + "中途取消");
-                                downloadInterrupt = true;
-                                return null; //中途取消
+                            outputStream.flush();
+                            outputStream.close();
+                            if (inputStream != null) {
+                                inputStream.close();
                             }
-                        }
-                        outputStream.flush();
-                        outputStream.close();
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
-                        downloadInterrupt = false;
-                        Log.d(TAG, fileName + " Download ok");
-                        needsRetry = false;
-                        return null;
-                    } else if (response.code() == 416 && targetSize != 0) {
-                        // response code = 416 is already download.
-                        needsRetry = false;
-                        downloadInterrupt = false;
-                    } else if(targetSize == 0) {
-                        needsRetry = false;
-                        onError.error("Download target not found");
-                        downloadInterrupt = true;
-                        return null;
-                    } else {
-                        downloadInterrupt = false;
-                        onError.error("ResponseCode: "+response.code());
+                            downloadInterrupt = false;
+                            Log.d(TAG, fileName + " Download ok");
+                            needsRetry = false;
+                            return null;
+                        } else if (response.code() == 416 && targetSize != 0) {
+                            // response code = 416 is already download.
+                            needsRetry = false;
+                            downloadInterrupt = false;
+                        } else if(targetSize == 0) {
+                            needsRetry = false;
+                            onError.error("Download target not found");
+                            downloadInterrupt = true;
+                            return null;
+                        } else {
+                            downloadInterrupt = false;
+                            onError.error("ResponseCode: "+response.code());
 //                            return null;  //無法連線
+                        }
                     }
-                }
-                catch (Exception e) {
-                    Log.e(TAG, "download exception"+e.getMessage());
-                    downloadInterrupt = false;
+                    catch (Exception e) {
+                        Log.e(TAG, "download exception"+e.getMessage());
+                        downloadInterrupt = false;
 //                        e.printStackTrace();
-                    onError.error(e.getMessage());
+                        onError.error(e.getMessage());
 
+                    }
+//                    if(needsRetry) {
+//                        Log.d(TAG, "Sleep " + retryPeriod + " milliseconds ...");
+//                        try {
+//                            Thread.sleep(retryPeriod);
+//                        } catch (InterruptedException ex) {
+//                            ex.printStackTrace();
+//                        }
+//                    }
                 }
             }
         } else {
