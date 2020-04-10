@@ -42,7 +42,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 
     public void downloadManager(String saveFileName, String fileUrl, String md5, boolean isCCPService, boolean isShadow) {
         this.md5 = md5;
-        this.saveFileName = saveFileName + System.currentTimeMillis()/1000+".apk";
+        this.saveFileName = saveFileName;
         this.fileUrl = fileUrl;
         this.isCCPService = isCCPService;
         this.isShadow = isShadow;
@@ -178,7 +178,6 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         Log.e(TAG, "into newDownloadTask");
         task = null;
         String savePath =context.getCacheDir().getPath() + Config.apkDownloadSavePath;
-        this.saveFileName = saveFileName + System.currentTimeMillis()/1000+".apk";
         task = new APKDownloadTask(context, this, this, this,this, savePath, this.saveFileName, this.fileUrl);
         task.deleteExistApk();
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
