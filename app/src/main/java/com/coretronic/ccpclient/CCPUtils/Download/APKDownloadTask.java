@@ -96,7 +96,7 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
             targetSize = getContentLength(fileUrl);
             httpClient = RouterAzure.getUnsafeOkHttpClient();
             savedFile = null;
-            needsRetry = true;
+            needsRetry = false;
 
 
 
@@ -123,45 +123,8 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                         Response response = call.execute();
                         Log.d(TAG, "ResponseCode: " + response.code());
 
-                        // 訪問續傳，成功回傳206
-                        if (response.code() == 206 && targetSize != 0) {
-                            Log.d(TAG, "ResponseCode: 206, " + "bytes=" + file.length());
-                            InputStream inputStream = response.body().byteStream();
-                            byte[] buff = new byte[1024];
-                            long downloaded = 0;
-
-                            // 4. 開始下載
-                            publishProgress(0L, targetSize);
-                            savedFile = new RandomAccessFile(file, "rw");  //開始訪問指定的文件
-                            savedFile.seek(file.length());  //跳過已經下載的文件長度
-                            while (true) {
-                                int readed = inputStream.read(buff);
-                                if (readed == -1) {
-                                    break;
-                                }
-                                // 5. Write buff to file
-                                savedFile.write(buff, 0, readed);
-                                downloaded += readed;
-                                publishProgress(savedFile.length(), targetSize);
-                                if (isCancelled()) {
-                                    Log.d(TAG, "TaskDownload:" + "中途取消");
-                                    downloadInterrupt = true;
-                                    return null; //中途取消
-                                }
-                            }
-
-                            savedFile.close();
-                            if (inputStream != null) {
-                                inputStream.close();
-                            }
-
-                            Log.d(TAG, fileName + " Download ok");
-                            needsRetry = false;
-                            break;
-                        }
-                        // **** if response is not equal to 206 (can't support continue download), the response will return 200 when internet is ok. ****
-                        else if (response.code() == 200 && targetSize != 0) {
-                            Log.d(TAG, "ResponseCode: 200");
+                        if (response.isSuccessful() && targetSize != 0) {
+                            Log.d(TAG, "ResponseCode: "+response.code());
                             InputStream inputStream = response.body().byteStream();
                             byte[] buff = new byte[1024];
                             long downloaded = 0;
@@ -218,14 +181,14 @@ public class APKDownloadTask extends AsyncTask<Void, Long, List<File>> {
                         onError.error(e.getMessage());
 
                     }
-                    if(needsRetry) {
-                        Log.d(TAG, "Sleep " + retryPeriod + " milliseconds ...");
-                        try {
-                            Thread.sleep(retryPeriod);
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
+//                    if(needsRetry) {
+//                        Log.d(TAG, "Sleep " + retryPeriod + " milliseconds ...");
+//                        try {
+//                            Thread.sleep(retryPeriod);
+//                        } catch (InterruptedException ex) {
+//                            ex.printStackTrace();
+//                        }
+//                    }
                 }
             }
         } else {
