@@ -166,12 +166,12 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
     }
 
     private void retryToDownload(){
-//        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            public void run() {
-//                newDownloadTask();
-//            }
-//        }, Config.ccpserviceApkDownloadRetryMillisecond);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                newDownloadTask();
+            }
+        }, Config.ccpserviceApkDownloadRetryMillisecond);
     }
 
     private void newDownloadTask(){
