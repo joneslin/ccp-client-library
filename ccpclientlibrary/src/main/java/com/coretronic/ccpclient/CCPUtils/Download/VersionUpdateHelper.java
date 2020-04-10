@@ -114,7 +114,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 //                    e.printStackTrace();
 //                }
                     //shadow service need to retry.
-                    Log.e(TAG, "retryToDownload by CCP Service安裝失敗");
+                    Log.e(TAG, "retryToDownload: CCP Service安裝失敗");
                     retryToDownload();
                 }
             }
@@ -137,7 +137,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 //                    e.printStackTrace();
 //                }
                     //shadow service need to retry.
-                    Log.e(TAG, "retryToDownload by Shadow安裝失敗");
+                    Log.e(TAG, "retryToDownload: Shadow安裝失敗");
                     retryToDownload();
                 }
             }
@@ -159,7 +159,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
 
         //CCP service need to retry.
         if (isCCPService){
-            Log.e(TAG, "retryToDownload by cancel");
+            Log.e(TAG, "retryToDownload: cancel");
             retryToDownload();
         }
 
@@ -191,10 +191,7 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
         int currentPercent = (int) currentFloat;
         if(currentPercent>pastPercent) {
             pastPercent = currentPercent;
-            Log.d(TAG, "progress: " + saveFileName + " " + currentPercent + "%   " + values[0].floatValue() + "/" + values[1].floatValue());
-        }
-        if (pastPercent >=100){
-            pastPercent=0;
+            Log.d(TAG, "progress: " + saveFileName + " " + currentPercent + "%");
         }
     }
 
