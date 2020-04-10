@@ -66,8 +66,8 @@ public class VersionUpdateHelper implements APKDownloadTask.OnTaskFinished, APKD
             Log.d(TAG, "folder: " + rootFile);
 
             // 變更資料夾&檔案存取權限 700=rwx-權限全開
-            String filePath = Config.apkDownloadSavePath +"/"+ saveFileName;
-            String folderPath = Config.apkDownloadSavePath;
+            String filePath = rootFile.getAbsolutePath() +"/"+ saveFileName;
+            String folderPath = rootFile.getAbsolutePath();
             try {
                 Log.d(TAG, "chmod to 777....");
                 Log.d(TAG, "chmod path: " + filePath);
