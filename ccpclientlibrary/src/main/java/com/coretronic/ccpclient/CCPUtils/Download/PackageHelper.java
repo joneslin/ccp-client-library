@@ -44,19 +44,25 @@ public class PackageHelper {
     }
 
     public static String getVersionName(String packageName, Context context) {
-        String versionSting;
-        if (isPackageExisted(packageName, context)) {
-            try {
-                PackageInfo pInfo = context.getPackageManager().getPackageInfo(packageName, 0);
-                versionSting = pInfo.versionName;
-            } catch (PackageManager.NameNotFoundException e1) {
-                Log.e("PackageHelper", "package name not found: ", e1);
+        try{
+            String versionSting;
+            if (isPackageExisted(packageName, context)) {
+                try {
+                    PackageInfo pInfo = context.getPackageManager().getPackageInfo(packageName, 0);
+                    versionSting = pInfo.versionName;
+                } catch (PackageManager.NameNotFoundException e1) {
+                    Log.e("PackageHelper", "package name not found: ", e1);
+                    return "0.0";
+                }
+            }else {
+                Log.e("PackageHelper", "package name not found:" + packageName + ", return version name: 0.0");
                 return "0.0";
             }
-        }else {
-            Log.e("PackageHelper", "package name not found:" + packageName + ", return version name: 0.0");
+            return versionSting;
+        } catch (NullPointerException e){
+            e.printStackTrace();
             return "0.0";
         }
-        return versionSting;
+
     }
 }

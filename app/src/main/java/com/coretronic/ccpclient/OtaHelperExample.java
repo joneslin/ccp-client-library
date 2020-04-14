@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpclient.CCPUtils.Download.APKDownloadTask;
 import com.coretronic.ccpclient.CCPUtils.Download.PackageHelper;
 import com.coretronic.ccpclient.CCPUtils.Download.SilentInstall;
@@ -38,7 +39,7 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
             e.printStackTrace();
         }
 
-        String savePath = "/sdcard/Download/";
+        String savePath = context.getCacheDir().getPath() + Config.apkDownloadSavePath;
         task = new APKDownloadTask(context, this, this, this, this,savePath, firmware.getName(), firmware.getUri());
 //        if(!task.isApkExist(currentSoftware.getChecksum()))
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
