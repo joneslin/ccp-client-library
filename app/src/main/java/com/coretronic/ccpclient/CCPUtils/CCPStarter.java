@@ -36,11 +36,11 @@ public class CCPStarter {
         this.context = context;
     }
 
-    public void start(){
-        start(Config.RECOMMENDED_CCPSERVICE_VERSION, Config.Environment.Production, false);
+    public boolean start(){
+        return start(Config.RECOMMENDED_CCPSERVICE_VERSION, Config.Environment.Production, false);
     }
 
-    public void start(String targetVer, Config.Environment environment, boolean useAndroidApi19){
+    public boolean start(String targetVer, Config.Environment environment, boolean useAndroidApi19){
         String envString;
         switch(environment) {
             case Production:
@@ -92,5 +92,6 @@ public class CCPStarter {
         // CCP Detector. 偵測ccp若存在則啟動，cpp不存在則下載並啟動，也一併啟動bind service。
         CCPDetector ccpDetector = new CCPDetector(context, iccpAidlInterface, serviceConnection, true, targetVersionName);
         ccpDetector.startCCPService(ccpserciceNeedUpdate);
+        return ccpserciceNeedUpdate;
     }
 }
