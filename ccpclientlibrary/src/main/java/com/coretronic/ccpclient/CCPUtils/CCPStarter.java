@@ -2,8 +2,11 @@ package com.coretronic.ccpclient.CCPUtils;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.RemoteException;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -16,6 +19,7 @@ import com.coretronic.ccpservice.ICCPAidlInterface;
  * Created by Jones Lin on 2019-08-22.
  */
 public class CCPStarter {
+    private String TAG = CCPStarter.class.getSimpleName();
     Context context;
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
@@ -64,22 +68,17 @@ public class CCPStarter {
         if(!currentCCPserviceVersion.equals(targetVersionName)) {
             // CCP service版本不符
             ccpserciceNeedUpdate = true;
-//            try {
-//                Toast.makeText(context.getApplicationContext(),	"CCP Service need update!!", Toast.LENGTH_SHORT).show();
-//            } catch (WindowManager.BadTokenException e) {
-//                e.printStackTrace();
-//            }
         }
 
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 iccpAidlInterface = ICCPAidlInterface.Stub.asInterface(iBinder);
-//                try {
-//                    Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
-//                } catch (WindowManager.BadTokenException e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    iBinder.linkToDeath(mDeathRecipient,0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
                 ccpAidlInterface.alreadyConnected();
             }
 
@@ -94,4 +93,22 @@ public class CCPStarter {
         ccpDetector.startCCPService(ccpserciceNeedUpdate);
         return ccpserciceNeedUpdate;
     }
+
+    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+
+        @Override
+        public void binderDied() {                  // 当绑定的service异常断开连接后，会自动执行此方法
+            Log.e(TAG,"enter Service binderDied " );
+            if (iccpAidlInterface != null){
+                iccpAidlInterface.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                //  重新绑定服务端的service
+                Intent it = new Intent();
+                //service action.
+                it.setAction("coretronic.intent.action.aidl");
+                //service package name.
+                it.setPackage("com.coretronic.ccpservice");
+                context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+            }
+        }
+    };
 }
