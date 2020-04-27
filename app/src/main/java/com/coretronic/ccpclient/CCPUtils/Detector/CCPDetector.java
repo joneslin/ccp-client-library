@@ -7,7 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 import com.coretronic.ccpclient.CCPUtils.Config;
-import com.coretronic.ccpclient.CCPUtils.Download.VersionUpdateHelper;
 import com.coretronic.ccpservice.ICCPAidlInterface;
 import java.util.List;
 
@@ -20,60 +19,33 @@ public class CCPDetector {
     private Context context = null;
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
-    boolean bindCCPService = false;
-    String ccpserviceVer = "";
 
-    public CCPDetector(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection, boolean bindCCPService, String ccpserviceVer) {
+    public CCPDetector(Context context, ICCPAidlInterface iccpAidlInterface, ServiceConnection serviceConnection) {
         this.context = context;
         this.iccpAidlInterface = iccpAidlInterface;
         this.serviceConnection = serviceConnection;
-        this.bindCCPService = bindCCPService;
-        this.ccpserviceVer = ccpserviceVer;
     }
 
     public void startCCPService(boolean ccpserciceNeedUpdate){
         boolean isPackageExist = isPackageExist(context, Config.ccpservicePackageName);
-        Log.d(TAG, "*****isCCP_ServiceExist: " + isPackageExist);
 
         ///CCP app是否存在.
         if (isPackageExist && !ccpserciceNeedUpdate){
-            Log.d(TAG, "*****starting CCP_Service");
+            Log.d(TAG, "Bind CCP_Service");
             Intent intent = new Intent(Config.ccpserviceStartAction);
             intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             context.sendBroadcast(intent);
 
-            if (bindCCPService) {
-                // Bind AIDL.
-                if (iccpAidlInterface == null) {
-                    Intent it = new Intent();
-                    //service action.
-                    it.setAction("coretronic.intent.action.aidl");
-                    //service package name.
-                    it.setPackage("com.coretronic.ccpservice");
-                    context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
-                    Config.isBindService = true;
-                }
+            // Bind AIDL.
+            if (iccpAidlInterface == null) {
+                Intent it = new Intent();
+                //service action.
+                it.setAction("coretronic.intent.action.aidl");
+                //service package name.
+                it.setPackage("com.coretronic.ccpservice");
+                context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+                Config.isBindService = true;
             }
-
-        } else {
-            //download apk and start.
-            Log.d(TAG, "*****need to Download CCP APK");
-            VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context, iccpAidlInterface, serviceConnection, bindCCPService);
-            versionUpdateHelper.downloadManager("ccpservice.apk", Config.getCcpserviceApkDownloadPath(ccpserviceVer), "", true, false);
-        }
-
-        //Shadow 是否存在，不存下則下載，存在則打開。
-        boolean isPackageExistForShadow = isPackageExist(context, Config.shadowPackageName);
-        if (isPackageExistForShadow){
-            Log.d(TAG, "*****starting Shadow Service");
-            Intent intent = new Intent(Config.shadowStartAction);
-            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            context.sendBroadcast(intent);
-        } else {
-            //download apk and start.
-            Log.d(TAG, "*****need to Download Shadow APK");
-            VersionUpdateHelper versionUpdateHelper = new VersionUpdateHelper(context);
-            versionUpdateHelper.downloadManager("shadow.apk", Config.shadowApkDownloadPath, "", false, true);
         }
 
     }
