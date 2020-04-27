@@ -55,7 +55,9 @@ public class CCPStarter {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-
+                Log.d(TAG,"onServiceDisconnected");
+                iccpAidlInterface = null;
+                Config.isBindService = false;
             }
         };
 
