@@ -19,6 +19,11 @@ public class CCPStarter {
     ICCPAidlInterface iccpAidlInterface = null;
     ServiceConnection serviceConnection = null;
     CCPAidlInterface ccpAidlInterface;
+
+    public void setIccpAidlInterface(ICCPAidlInterface iccpAidlInterface) {
+        this.iccpAidlInterface = iccpAidlInterface;
+    }
+
     public ICCPAidlInterface getIccpAidlInterface() {
         return iccpAidlInterface;
     }
