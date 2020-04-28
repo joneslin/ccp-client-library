@@ -2,8 +2,10 @@ package com.coretronic.ccpclient.CCPUtils;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import com.coretronic.ccpclient.CCPUtils.Detector.CCPDetector;
 import com.coretronic.ccpclient.CCPUtils.Download.PackageHelper;
@@ -50,11 +52,11 @@ public class CCPStarter {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 iccpAidlInterface = ICCPAidlInterface.Stub.asInterface(iBinder);
-//                try {
-//                    iBinder.linkToDeath(mDeathRecipient,0);
-//                } catch (RemoteException e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    iBinder.linkToDeath(mDeathRecipient,0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
                 ccpAidlInterface.alreadyConnected();
             }
 
@@ -72,21 +74,21 @@ public class CCPStarter {
         return ccpserciceNeedUpdate;
     }
 
-//    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
-//
-//        @Override
-//        public void binderDied() {                  // 当绑定的service异常断开连接后，会自动执行此方法
-//            Log.e(TAG,"enter Service binderDied " );
-//            if (iccpAidlInterface != null){
-//                iccpAidlInterface.asBinder().unlinkToDeath(mDeathRecipient, 0);
-//                //  重新绑定服务端的service
-//                Intent it = new Intent();
-//                //service action.
-//                it.setAction("coretronic.intent.action.aidl");
-//                //service package name.
-//                it.setPackage("com.coretronic.ccpservice");
-//                context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
-//            }
-//        }
-//    };
+    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+
+        @Override
+        public void binderDied() {
+            Log.e(TAG,"enter Service binderDied " );
+            if (iccpAidlInterface != null){
+                iccpAidlInterface.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                //  重新绑定服务端的service
+                Intent it = new Intent();
+                //service action.
+                it.setAction("coretronic.intent.action.aidl");
+                //service package name.
+                it.setPackage("com.coretronic.ccpservice");
+                context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+            }
+        }
+    };
 }
