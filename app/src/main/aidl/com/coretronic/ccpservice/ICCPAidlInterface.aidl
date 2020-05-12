@@ -15,17 +15,13 @@ interface ICCPAidlInterface {
 
     String sendInt(int data);
 
-    String sendControlPackageNameArray(inout List<String> data);
-
     void sendRegisterInfo(String deviceId, String tenantId, String productId);
 
-    String sendOtaStatus(String packageName, String otaStatus, String localVersion, String updateVersion);
+    String sendOtaStatus(String packageName, String otaStatus, String localVersion, String updateVersion, String msg);
 
-    String sendFirmwareOtaStatus(String title, String otaStatus, String localVersion, String updateVersion);
+    String sendFirmwareOtaStatus(String title, String otaStatus, String localVersion, String updateVersion, String msg);
 
     void requestOtaInfo();
-
-    void setEnvironment(String enviroment);
 
     void reportSystemInfo(String firmwareVersion);
 }
