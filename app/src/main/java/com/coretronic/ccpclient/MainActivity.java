@@ -74,58 +74,12 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             public void ccpServiceReady(String messageCode) throws RemoteException {
                 Log.d("AIDL Callback", "CCP Service Get Ready, please send DeviceID and TenantID") ;
 
-                // TODO 4. 重要：傳註冊資訊，需要傳送兩個值，分別為DeviceID(由各單位自行定義) 與 TenantID(範例中為optoma TenantID)。
-//                iccpAidlInterface.sendRegisterInfo("Optoma-"+android.os.Build.SERIAL, "5b2e092f-0751-4480-8154-9dece5398ddf");
-//                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"-1", "5b2e092f-0751-4480-8154-9dece5398ddf");
-                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"-2", "00000000-0000-0000-0000-000000000002","");
+                iccpAidlInterface.sendValidationInfo("Optoma-5E:83:6A:A7:4B:C4", "7b6835b6-b038-4c38-9d25-e3d417facfb8", "1h8kTsCgl0l/e+0eigNj7L0EubE7vANkkH+7JqChKo0=", "HostName=CCP-IoTHub-Dev.azure-devices.net;DeviceId=7b6835b6-b038-4c38-9d25-e3d417facfb8;SharedAccessKey=1h8kTsCgl0l/e+0eigNj7L0EubE7vANkkH+7JqChKo0=" );
             }
 
             @Override
             public void getOtaInfo(String latestOTAByDeviceStr) throws RemoteException {
-                if(latestOTAByDeviceStr==null){
-                    Log.e("OTA info","request OTA info failed");
-                    return;
-                }
-                Log.d("AIDL Callback", "Get Ota info From CCP Service: " + latestOTAByDeviceStr);
-                LatestOTAByDeviceGson latestOTAByDeviceGson = new Gson().fromJson(latestOTAByDeviceStr, LatestOTAByDeviceGson.class);
-                Log.d("OTA info", "Product name: " + latestOTAByDeviceGson.getProduct().getName());
-                // Firmware Info
-                LatestOTAByDeviceGson.FirmwareBean firmware = latestOTAByDeviceGson.getFirmware();
-                Log.d("OTA info", "Firmware title: " + firmware.getTitle());
-                Log.d("OTA info", "Firmware name: " + firmware.getName());
-                Log.d("OTA info", "Firmware version: " + firmware.getVersion());
-                Log.d("OTA info", "Firmware uri: " + firmware.getUri());
-                // TODO: 版本比對
-                String localFirmwareVersion = "";
-                if(!localFirmwareVersion.equals(firmware.getVersion())) {
-                    // TODO: 下載並安裝firmware
-                    OtaHelperExample otaHelper = new OtaHelperExample(getBaseContext());
-                    otaHelper.startUpdateFiirmware(iccpAidlInterface, firmware, localFirmwareVersion);
-                } else {
-                    Log.d("OTA info",firmware.getTitle() + localFirmwareVersion + "已經是最新版本");
-                }
 
-                for (LatestOTAByDeviceGson.SoftwaresBean software : latestOTAByDeviceGson.getSoftwares()) {
-                    Log.d("OTA info", "Software title: " + software.getTitle());
-                    Log.d("OTA info", "Software packageName: " + software.getPackageName());
-                    Log.d("OTA info", "Software version: " + software.getVersion());
-                    Log.d("OTA info", "Software uri: " + software.getUri());
-
-                    // TODO: 比對package版本
-                    String packageName = (software.getTitle() != null && !software.getTitle().equals("")) ? software.getTitle() : "";
-                    String updatePackageVersion = (software.getVersion() != null && !software.getVersion().equals("")) ? software.getVersion() : "";
-                    String localPackageVersion = PackageHelper.getVersionName(packageName, getBaseContext());
-
-                    if(PackageHelper.isPackageExisted(packageName,getBaseContext()) && localPackageVersion.equals(updatePackageVersion)) {
-                        // 已經是最新版本
-                        Log.d("OTA info",packageName + localPackageVersion + "已經是最新版本");
-                    } else {
-                        // TODO: 下載並安裝
-                        Log.d("OTA info",software.getPackageName() + " ver." + localPackageVersion+" --> ver." + updatePackageVersion);
-                        OtaHelperExample otaHelper = new OtaHelperExample(getBaseContext());
-                        otaHelper.startUpdateSoftware(iccpAidlInterface, software, localPackageVersion);
-                    }
-                }
             }
 
             @Override
@@ -135,6 +89,11 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                 String firmwareVersoon = "unknown";
                 iccpAidlInterface.reportSystemInfo(firmwareVersoon);
             }
+
+            @Override
+            public void ccpServiceValidationResult(int statusCode) throws RemoteException {
+                Log.d("AIDL Callback", "CCP ccpServiceValidationResult: " + statusCode) ;
+            }
         };
 
         // TODO 5. 註冊AIDL CallBack.
@@ -142,13 +101,6 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             iccpAidlInterface.registerCallback(iccpAidlCallback);
         } catch (RemoteException e) { }
 
-        // TODO 設定環境
-        try {
-            iccpAidlInterface.setEnvironment("development");
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
 
         //TODO 6.送資料到ccp agent service example.
         try {
@@ -158,17 +110,6 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             // 傳Integer至ccp agent Service.
             String sendIntToService = iccpAidlInterface.sendInt(1000);
 
-
-//            // TODO 7.重要：將要被CCP平台控管的android package name，透過beControlledPackageName List回傳給CCP agent service.
-//            List<String> beControlledPackageName = new ArrayList<>();
-//            beControlledPackageName.add("com.coretronic.ccpservice");
-//            beControlledPackageName.add("com.coretronic.ccpclient");
-//            beControlledPackageName.add("com.CiCS.ProjectorController");
-//            String sendControlPackageNameStatus = iccpAidlInterface.sendControlPackageNameArray(beControlledPackageName);
-
-            if(iccpAidlInterface != null) {
-                iccpAidlInterface.requestOtaInfo();
-            }
 
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -210,11 +151,6 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                 try {
                     Toast.makeText(context, packageName + "下載&安裝成功", Toast.LENGTH_SHORT).show();
                 } catch (WindowManager.BadTokenException e){
-                    e.printStackTrace();
-                }
-                try {
-                    iccpAidlInterface.sendOtaStatus(packageName,"current", PackageHelper.getVersionName(packageName, context), "");
-                } catch (RemoteException e) {
                     e.printStackTrace();
                 }
             }

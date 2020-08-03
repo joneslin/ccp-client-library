@@ -15,4 +15,6 @@ oneway interface ICCPAidlCallback {
 
     void ccpServiceValidated(String guid, String secretKey);
 
+    void ccpServiceValidationResult(int statusCode);
+
 }
