@@ -72,9 +72,9 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
 
             @Override
             public void ccpServiceReady(String messageCode) throws RemoteException {
-                Log.d("AIDL Callback", "CCP Service Get Ready, please send DeviceID and TenantID") ;
+//                iccpAidlInterface.sendValidationInfo("Optoma-5E:83:6A:A7:4B:C4", "7b6835b6-b038-4c38-9d25-e3d417facfb8", "1h8kTsCgl0l/e+0eigNj7L0EubE7vANkkH+7JqChKo0=", "HostName=CCP-IoTHub-Dev.azure-devices.net;DeviceId=7b6835b6-b038-4c38-9d25-e3d417facfb8;SharedAccessKey=1h8kTsCgl0l/e+0eigNj7L0EubE7vANkkH+7JqChKo0=" );
+                iccpAidlInterface.sendValidationInfo("40190904000030", "0bc4bfa7-83c6-42bc-bc9a-4505366aae6c", "3bXcljc9Gv9iZRXBdS//4J773lnX3KDfd7nHLIS6UFU=", "HostName=CCP-IoTHub-Dev.azure-devices.net;DeviceId=0bc4bfa7-83c6-42bc-bc9a-4505366aae6c;SharedAccessKey=3bXcljc9Gv9iZRXBdS//4J773lnX3KDfd7nHLIS6UFU=" );
 
-                iccpAidlInterface.sendValidationInfo("Optoma-5E:83:6A:A7:4B:C4", "7b6835b6-b038-4c38-9d25-e3d417facfb8", "1h8kTsCgl0l/e+0eigNj7L0EubE7vANkkH+7JqChKo0=", "HostName=CCP-IoTHub-Dev.azure-devices.net;DeviceId=7b6835b6-b038-4c38-9d25-e3d417facfb8;SharedAccessKey=1h8kTsCgl0l/e+0eigNj7L0EubE7vANkkH+7JqChKo0=" );
             }
 
             @Override

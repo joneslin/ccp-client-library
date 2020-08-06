@@ -42,29 +42,18 @@ public class CCPStarter {
 
         String currentCCPserviceVersion = PackageHelper.getVersionName(Config.ccpservicePackageName, context);
         boolean ccpserciceNeedUpdate=false;
-        if(!currentCCPserviceVersion.contains(Config.RECOMMENDED_CCPSERVICE_VERSION)) {
-            // CCP service版本不符
-            Log.e(TAG,"CCP service版本不符");
-            ccpserciceNeedUpdate = true;
-        }
 
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 iccpAidlInterface = ICCPAidlInterface.Stub.asInterface(iBinder);
-                try {
-                    iBinder.linkToDeath(mDeathRecipient,0);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+//                Toast.makeText(context.getApplicationContext(),	"This APP already connected to CCP Service !!", Toast.LENGTH_SHORT).show();
                 ccpAidlInterface.alreadyConnected();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                Log.d(TAG,"onServiceDisconnected");
-                iccpAidlInterface = null;
-                Config.isBindService = false;
+
             }
         };
 
@@ -74,21 +63,13 @@ public class CCPStarter {
         return ccpserciceNeedUpdate;
     }
 
-    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
-
-        @Override
-        public void binderDied() {
-            Log.e(TAG,"enter Service binderDied " );
-            if (iccpAidlInterface != null){
-                iccpAidlInterface.asBinder().unlinkToDeath(mDeathRecipient, 0);
-                //  重新绑定服务端的service
-                Intent it = new Intent();
-                //service action.
-                it.setAction("coretronic.intent.action.aidl");
-                //service package name.
-                it.setPackage("com.coretronic.ccpservice");
-                context.bindService(it, serviceConnection, Context.BIND_AUTO_CREATE);
+    public void stop(){
+        if(Config.isBindService){
+            try {
+                context.unbindService(serviceConnection);
+            }catch (IllegalArgumentException e){
+                e.printStackTrace();
             }
         }
-    };
+    }
 }
