@@ -34,7 +34,7 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
         this.localVersion = localVersion;
 
         try {
-            this.iccpAidlInterface.sendFirmwareOtaStatus(title,"applying", localVersion, newVersion);
+            this.iccpAidlInterface.sendFirmwareOtaStatus(title,"applying", localVersion, newVersion,"");
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -54,7 +54,7 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
         this.localVersion = localVersion;
 
         try {
-            this.iccpAidlInterface.sendOtaStatus(title,"applying", localVersion, newVersion);
+            this.iccpAidlInterface.sendOtaStatus(title,"applying", localVersion, newVersion,"");
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -107,7 +107,7 @@ public class OtaHelperExample implements APKDownloadTask.OnCancelled, APKDownloa
                 }
                 else
                 {
-                    iccpAidlInterface.sendOtaStatus(title,"error", localVersion, newVersion);
+                    iccpAidlInterface.sendOtaStatus(title,"error", localVersion, newVersion,"");
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();

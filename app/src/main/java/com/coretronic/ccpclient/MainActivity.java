@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                 // TODO 4. 重要：傳註冊資訊，需要傳送兩個值，分別為DeviceID(由各單位自行定義) 與 TenantID(範例中為optoma TenantID)。
 //                iccpAidlInterface.sendRegisterInfo("Optoma-"+android.os.Build.SERIAL, "5b2e092f-0751-4480-8154-9dece5398ddf");
 //                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"-1", "5b2e092f-0751-4480-8154-9dece5398ddf");
-                iccpAidlInterface.sendRegisterInfo("OTAtest"+android.os.Build.SERIAL+"-2", "00000000-0000-0000-0000-000000000002","");
+                iccpAidlInterface.sendRegisterInfo("TEST-"+android.os.Build.SERIAL, "88525470-613c-4db7-b1f1-b71866fd7b0a","39849cfc-e1a3-4c58-95c2-68d6017fd044");
             }
 
             @Override
@@ -142,13 +142,6 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
             iccpAidlInterface.registerCallback(iccpAidlCallback);
         } catch (RemoteException e) { }
 
-        // TODO 設定環境
-        try {
-            iccpAidlInterface.setEnvironment("development");
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
 
         //TODO 6.送資料到ccp agent service example.
         try {
@@ -213,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements CCPAidlInterface 
                     e.printStackTrace();
                 }
                 try {
-                    iccpAidlInterface.sendOtaStatus(packageName,"current", PackageHelper.getVersionName(packageName, context), "");
+                    iccpAidlInterface.sendOtaStatus(packageName,"current", PackageHelper.getVersionName(packageName, context), "","");
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }

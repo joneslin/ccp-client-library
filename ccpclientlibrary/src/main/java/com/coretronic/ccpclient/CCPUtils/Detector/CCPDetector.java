@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 import com.coretronic.ccpclient.CCPUtils.Config;
 import com.coretronic.ccpservice.ICCPAidlInterface;
@@ -34,7 +35,12 @@ public class CCPDetector {
             Log.d(TAG, "Bind CCP_Service");
             Intent intent = new Intent(Config.ccpserviceStartAction);
             intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            context.sendBroadcast(intent);
+            intent.setPackage("com.coretronic.ccpservice");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent);
+            } else {
+                context.startService(intent);
+            }
 
             // Bind AIDL.
             if (iccpAidlInterface == null) {
