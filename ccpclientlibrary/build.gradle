@@ -45,6 +45,17 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.6.1'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.0'
+}
 
-    implementation 'com.github.jitpack:gradle-simple:master-SNAPSHOT'
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                groupId = 'com.github.joneslin'
+                artifactId ='ccp-client-library'
+                version = 'optoma-1.1.10'
+            }
+        }
+    }
 }
