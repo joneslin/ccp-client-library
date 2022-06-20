@@ -4,10 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.RemoteException;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.coretronic.ccpclient.CCPUtils.Example.LoggerExample;
 import com.coretronic.ccpclient.CCPUtils.Interface.CCPAidlInterface;
