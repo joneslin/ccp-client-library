@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 28
@@ -21,15 +22,13 @@ android {
         }
     }
 
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = 'org.gradle.sample'
-            artifactId = 'ccp-client-library'
-            version = '1.1'
-            from components.java
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId = 'com.coretronic.ccpclient'
+                artifactId = 'ccp-client-library'
+                version = '2.1.4'
+            }
         }
     }
 }
