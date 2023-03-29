@@ -1,5 +1,6 @@
 package com.coretronic.ccpclient.CCPUtils.Detector;
 
+jonesimport android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -33,14 +34,11 @@ public class CCPDetector {
         ///CCP app是否存在.
         if (isPackageExist && !ccpserciceNeedUpdate){
             Log.d(TAG, "Bind CCP_Service");
-            Intent intent = new Intent(Config.ccpserviceStartAction);
-            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            intent.setPackage("com.coretronic.ccpservice");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent);
-            } else {
-                context.startService(intent);
-            }
+            Intent serviceIntentCcpservice = new Intent();
+            String pkg = "com.coretronic.ccpservice";
+            String cls = "com.coretronic.ccpservice.BroadcastReceiver.ShadowIntentReceiver";
+            serviceIntentCcpservice.setComponent(new ComponentName(pkg, cls));
+            context.sendBroadcast(serviceIntentCcpservice);
 
             // Bind AIDL.
             if (iccpAidlInterface == null) {
